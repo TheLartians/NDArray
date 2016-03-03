@@ -49,11 +49,11 @@ public:
       if(idx >= shape.template get<Idx>()) throw std::range_error("invalid array index " + std::to_string(Idx) + ": " + std::to_string(idx));
     }
     
-    template <size_t Idx,size_t value> typename std::enable_if<!Shape::template is_dynamic<Idx>()>::type operator()(const static_index<value> &v)const{
+    template <size_t Idx,size_t value> constexpr typename std::enable_if<!Shape::template element_type<Idx>::is_dynamic>::type operator()(const static_index<value> &v)const{
       static_assert( value < Shape::template get<Idx>(), "invalid array index" );
     }
     
-    template <size_t Idx,size_t value> typename std::enable_if<Shape::template is_dynamic<Idx>()>::type operator()(const static_index<value> &v)const{
+    template <size_t Idx,size_t value> typename std::enable_if<Shape::template element_type<Idx>::is_dynamic>::type operator()(const static_index<value> &v)const{
       if(value >= shape.template get<Idx>()) throw std::range_error("invalid array index " + std::to_string(Idx) + ": " + std::to_string(value));
     }
     

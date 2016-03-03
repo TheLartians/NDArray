@@ -12,14 +12,14 @@ struct dynamic_index{
   constexpr dynamic_index(){}
   constexpr dynamic_index(size_t _value):value(_value){}
   operator size_t()const{ return value; }
-  const static bool is_dynamic = true;
+  constexpr static bool is_dynamic = true;
 };
 
 template <size_t _value> struct static_index{
   constexpr static_index(){}
   static const size_t value = _value;
   operator size_t()const{ return _value; }
-  const static bool is_dynamic = false;
+  constexpr static bool is_dynamic = false;
 };
 
 template <typename ... Indices> class index_tuple;
@@ -100,8 +100,7 @@ public:
   
   template <size_t Idx> using element_type = typename std::tuple_element<Idx, std::tuple<Indices...> >::type;
   
-  template <size_t Idx> constexpr static typename std::enable_if<!(Idx>=size()),bool>::type is_dynamic(){ return element_type<Idx>::is_dynamic; }
-  template <size_t Idx> constexpr static typename std::enable_if<(Idx>=size()),bool>::type is_dynamic(){ return false; }
+  template <size_t Idx> constexpr static typename std::enable_if<(Idx<size()),bool>::type is_dynamic(){ return std::tuple_element<Idx, std::tuple<Indices...> >::type::is_dynamic; }
   
 private:
   
