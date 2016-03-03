@@ -1,11 +1,3 @@
-///////////////////////////////////////////////////////////
-//
-//    Created in 2014 by Lars Melchior
-//
-//    This file is distributed under the GNU
-//    General Public License (GPL).
-//    See LICENSE.TXT for details.
-//
 
 #pragma once
 
