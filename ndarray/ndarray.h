@@ -1,4 +1,3 @@
-
 #include "iterators.h"
 #include "index_tuple.h"
 #include <array>
@@ -6,10 +5,10 @@
 namespace lars{
 
 template <class Shape,size_t N = Shape::size()> struct ndarray_calculator{
-  using next_prod_type = typename ndarray_calculator<Shape,N-1>::next_prod_type::template slice_type<1,Shape::size()>::template push_back_fixed_type<1>;
+  using next_prod_type = typename ndarray_calculator<Shape,N-1>::next_prod_type::template slice_type<1,Shape::size()>::template push_back_static_type<1>;
   using prod_type = typename next_prod_type::template mul_result< typename ndarray_calculator<Shape,N-1>::prod_type  >;
-  using stride_type = typename prod_type::template slice_type<1,Shape::size()>::template push_back_fixed_type<1>;
-  static next_prod_type next_prod(const Shape &shape){ return ndarray_calculator<Shape,N-1>::next_prod(shape).template slice<1,Shape::size()>().append(fixed_index_tuple<1>()); }
+  using stride_type = typename prod_type::template slice_type<1,Shape::size()>::template push_back_static_type<1>;
+  static next_prod_type next_prod(const Shape &shape){ return ndarray_calculator<Shape,N-1>::next_prod(shape).template slice<1,Shape::size()>().append(static_index_tuple<1>()); }
   static prod_type prod(const Shape &shape){ return next_prod(shape) * ndarray_calculator<Shape,N-1>::prod(shape); }
   static stride_type prod_to_stride(const prod_type &prod){ return prod.template slice<1,prod_type::size()>().template push_back<1>(); }
   static stride_type stride(const Shape &shape){ return prod_to_stride(prod(shape)); }
@@ -50,11 +49,11 @@ public:
       if(idx >= shape.template get<Idx>()) throw std::range_error("invalid array index " + std::to_string(Idx) + ": " + std::to_string(idx));
     }
     
-    template <size_t Idx,size_t value> typename std::enable_if<!Shape::template is_dynamic<Idx>()>::type operator()(const fixed_index<value> &v)const{
+    template <size_t Idx,size_t value> typename std::enable_if<!Shape::template is_dynamic<Idx>()>::type operator()(const static_index<value> &v)const{
       static_assert( value < Shape::template get<Idx>(), "invalid array index" );
     }
     
-    template <size_t Idx,size_t value> typename std::enable_if<Shape::template is_dynamic<Idx>()>::type operator()(const fixed_index<value> &v)const{
+    template <size_t Idx,size_t value> typename std::enable_if<Shape::template is_dynamic<Idx>()>::type operator()(const static_index<value> &v)const{
       if(value >= shape.template get<Idx>()) throw std::range_error("invalid array index " + std::to_string(Idx) + ": " + std::to_string(value));
     }
     
@@ -228,25 +227,25 @@ template <class T,typename Shape,typename Stride,typename Offset,typename Data> 
     const T * get()const{ return &data[0]; }
   };
 
-template <class T,typename Shape> class heap_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, fixed_index<0>,heap_data<T>>{
+template <class T,typename Shape> class heap_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,heap_data<T>>{
 public:
   
-  using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, fixed_index<0>,heap_data<T>>;
+  using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,heap_data<T>>;
   using base::operator=;
   
-  heap_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),fixed_index<0>(),ndarray_calculator<Shape>::prod(shape).template get<0>()){}
+  heap_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>(),ndarray_calculator<Shape>::prod(shape).template get<0>()){}
   
   heap_ndarray(heap_ndarray && other) = default;
   heap_ndarray &operator=(heap_ndarray && other) = default;
 };
   
-  template <class T,typename Shape> class stack_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, fixed_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>{
+  template <class T,typename Shape> class stack_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>{
   public:
     
-    using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, fixed_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>;
+    using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>;
     using base::operator=;
     
-    stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),fixed_index<0>()){}
+    stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>()){}
   };
 
 

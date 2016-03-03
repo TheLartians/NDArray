@@ -15,8 +15,8 @@ struct dynamic_index{
   const static bool is_dynamic = true;
 };
 
-template <size_t _value> struct fixed_index{
-  constexpr fixed_index(){}
+template <size_t _value> struct static_index{
+  constexpr static_index(){}
   static const size_t value = _value;
   operator size_t()const{ return _value; }
   const static bool is_dynamic = false;
@@ -37,7 +37,7 @@ template <typename Lhs,typename Rhs,typename F> struct reducer:public F{
   };
   
   template <size_t N> struct make_result_type<N,typename std::enable_if<N!=0 && !(Lhs::template is_dynamic<N-1>() || Rhs::template is_dynamic<N-1>())>::type>{
-    using type = typename make_result_type<N-1>::type::template push_back_fixed_type<F::reduce(Lhs::template get<N-1>(),Rhs::template get<N-1>())>;
+    using type = typename make_result_type<N-1>::type::template push_back_static_type<F::reduce(Lhs::template get<N-1>(),Rhs::template get<N-1>())>;
   };
   
   template <size_t N> struct make_result_type<N,typename std::enable_if<N==0>::type>{ using type = index_tuple<>; };
@@ -48,7 +48,7 @@ template <typename Lhs,typename Rhs,typename F> struct reducer:public F{
     value = F::reduce(lhs.template get<Idx>(),rhs.template get<Idx>());
   }
   
-  template <size_t Idx,size_t value> void operator()(fixed_index<value> &){  }
+  template <size_t Idx,size_t value> void operator()(static_index<value> &){  }
   
 };
 
@@ -119,12 +119,12 @@ private:
     
     template <size_t Idx>  void operator()(dynamic_index & value)const{ value = size_t(std::get<Idx + Begin>(values)); }
     
-    template <size_t Idx,size_t value> enable_if_dynamic<Idx> operator()(fixed_index<value> &v)const{
-      if(std::get<Idx + Begin>(values) != value) throw std::runtime_error("changing fixed index");
+    template <size_t Idx,size_t value> enable_if_dynamic<Idx> operator()(static_index<value> &v)const{
+      if(std::get<Idx + Begin>(values) != value) throw std::runtime_error("changing static index");
     }
     
-    template <size_t Idx,size_t value> enable_if_not_dynamic<Idx> operator()(fixed_index<value> &v)const{
-      static_assert( std::tuple_element<Idx + Begin, Args>::type::value == value, "changing fixed index");
+    template <size_t Idx,size_t value> enable_if_not_dynamic<Idx> operator()(static_index<value> &v)const{
+      static_assert( std::tuple_element<Idx + Begin, Args>::type::value == value, "changing static index");
     }
 
   };
@@ -155,7 +155,7 @@ public:
   template <typename ... Args> void set(size_t first, Args ... args){ set(std::make_tuple( dynamic_index(first), dynamic_index(args) ...) ); }
   
   template <size_t Idx> void set(size_t value){ std::get<Idx>(*this) = value; }
-  template <size_t ... Idx> void set(){ set(std::make_tuple( fixed_index<Idx>() ... ) ); }
+  template <size_t ... Idx> void set(){ set(std::make_tuple( static_index<Idx>() ... ) ); }
   
   template <size_t Idx> enable_if_dynamic<Idx, size_t> get()const{ return std::get<Idx>(*this).value; }
   template <size_t Idx> enable_if_not_dynamic<Idx, size_t> static constexpr get(){ return std::tuple_element<Idx, std::tuple<Indices...> >::type::value; }
@@ -188,17 +188,17 @@ public:
   }
 
   template<typename I> using push_back_type = index_tuple<Indices..., I >;
-  template<size_t N> using push_back_fixed_type = index_tuple<Indices..., fixed_index<N> >;
+  template<size_t N> using push_back_static_type = index_tuple<Indices..., static_index<N> >;
   using push_back_dynamic_type = index_tuple<Indices..., dynamic_index>;
   
   template<typename I> using push_front_type = index_tuple< I, Indices... >;
-  template<size_t N> using push_front_fixed_type = index_tuple<fixed_index<N>, Indices... >;
+  template<size_t N> using push_front_static_type = index_tuple<static_index<N>, Indices... >;
   using push_front_dynamic_type = index_tuple<dynamic_index,Indices...>;
   
-  template <size_t value> push_back_fixed_type<value> push_back(){ return append(index_tuple<fixed_index<1>>()); }
+  template <size_t value> push_back_static_type<value> push_back(){ return append(index_tuple<static_index<1>>()); }
   push_back_dynamic_type push_back(size_t value){ return append(index_tuple<dynamic_index>(value)); }
   
-  template <size_t value> push_front_fixed_type<value> push_front(){ return index_tuple<fixed_index<1>>().append(*this); }
+  template <size_t value> push_front_static_type<value> push_front(){ return index_tuple<static_index<1>>().append(*this); }
   push_front_dynamic_type push_front(size_t value){ return index_tuple<dynamic_index>(value).append(*this); }
   
   template <class Red, typename Other> using reduced_result = typename reducer<index_tuple<Indices...>,Other,Red>::result_type;
@@ -226,7 +226,7 @@ public:
   
   };
   
-  template <size_t ... Indices> using fixed_index_tuple = index_tuple<fixed_index<Indices> ...>;
+  template <size_t ... Indices> using static_index_tuple = index_tuple<static_index<Indices> ...>;
   
   template <size_t N> struct make_dynamic_index_tuple{ using type = typename make_dynamic_index_tuple<N-1>::type::push_back_dynamic_type; };
   template <> struct make_dynamic_index_tuple<0>{ using type = index_tuple<>; };
@@ -239,7 +239,7 @@ public:
     return stream;
   }
   
-  template <size_t N> struct make_index_tuple_range{ using type = typename make_index_tuple_range<N-1>::type::template make_append<index_tuple<fixed_index<N-1>>>::type; };
+  template <size_t N> struct make_index_tuple_range{ using type = typename make_index_tuple_range<N-1>::type::template make_append<index_tuple<static_index<N-1>>>::type; };
   template <> struct make_index_tuple_range<0>{ using type = index_tuple<>; };
   template <size_t N> using index_tuple_range = typename make_index_tuple_range<N>::type;
   
@@ -253,7 +253,7 @@ public:
   template <typename IndexTuple> using reversed_index_tuple_type = typename make_reverse_index_tuple<IndexTuple>::type;
   template <typename IndexTuple> reversed_index_tuple_type<IndexTuple> reverse(IndexTuple tuple){ return make_reverse_index_tuple<IndexTuple>::reverse(tuple); }
   
-  template <size_t V,size_t N> struct make_index_tuple_constant{ using type = typename make_index_tuple_constant<V,N-1>::type::template make_append<index_tuple<fixed_index<V>>>::type; };
+  template <size_t V,size_t N> struct make_index_tuple_constant{ using type = typename make_index_tuple_constant<V,N-1>::type::template make_append<index_tuple<static_index<V>>>::type; };
   template <size_t V> struct make_index_tuple_constant<V,0>{ using type = index_tuple<>; };
   template <size_t V,size_t N> using index_tuple_constant = typename make_index_tuple_constant<V,N>::type;
 
