@@ -106,24 +106,24 @@ public:
   template <typename Ret,typename Dummy> using enable_if_one_dimensional = typename std::enable_if<(Shape::size() == 1) && dummy_template<Dummy>::value,Ret>::type;
   template <typename Ret,typename Dummy> using disable_if_one_dimensional = typename std::enable_if<(Shape::size() > 1) && dummy_template<Dummy>::value,Ret>::type;
 
-  struct iterator:public std::iterator<std::forward_iterator_tag, element_type>{
+  struct iterator:public std::iterator<std::input_iterator_tag, element_type>{
     ndarray_base & parent;
     size_t current_index;
     iterator(ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
     element_type operator*()const{ return parent[current_index]; }
     iterator & operator++(){ ++current_index; return *this; }
-    iterator operator++(int v){return iterator(parent, current_index++(v)); }
-    bool operator!=(const iterator &other)const{ return other.index != index || other.parent != parent; }
+    iterator operator++()const{return iterator(parent, current_index+1); }
+    bool operator!=(const iterator &other)const{ return other.current_index != current_index || other.parent != parent; }
   };
   
-  struct const_iterator:public std::iterator<std::forward_iterator_tag, const_element_type>{
+  struct const_iterator:public std::iterator<std::input_iterator_tag, const_element_type>{
     const ndarray_base & parent;
     size_t current_index;
     const_iterator(const ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
     const_element_type operator*()const{ return parent[current_index]; }
     const_iterator & operator++(){ ++current_index; return *this; }
-    const_iterator operator++(int v){return const_iterator(parent, current_index++(v)); }
-    bool operator!=(const const_iterator &other)const{ return other.index != index || other.parent != parent; }
+    const_iterator operator++()const{return const_iterator(parent, current_index+1); }
+    bool operator!=(const const_iterator &other)const{ return other.current_index != current_index || other.parent != parent; }
   };
   
   iterator begin(){ return iterator(*this, 0); }
