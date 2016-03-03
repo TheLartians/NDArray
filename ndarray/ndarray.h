@@ -24,7 +24,6 @@ template <class Shape> struct ndarray_calculator<Shape,0>{
   static stride_type stride(const Shape &shape){ return prod_to_stride(prod(shape)); }
 };
 
-
 template <class T> struct borrowed_data{
   T * data = nullptr;
   T * get()const{ return data; }
@@ -106,6 +105,31 @@ public:
   template <typename D> struct dummy_template{ const static bool value = true; };
   template <typename Ret,typename Dummy> using enable_if_one_dimensional = typename std::enable_if<(Shape::size() == 1) && dummy_template<Dummy>::value,Ret>::type;
   template <typename Ret,typename Dummy> using disable_if_one_dimensional = typename std::enable_if<(Shape::size() > 1) && dummy_template<Dummy>::value,Ret>::type;
+
+  struct iterator:public std::iterator<std::forward_iterator_tag, element_type>{
+    ndarray_base & parent;
+    size_t current_index;
+    iterator(ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
+    element_type operator*()const{ return parent[current_index]; }
+    iterator & operator++(){ ++current_index; return *this; }
+    iterator operator++(int v){return iterator(parent, current_index++(v)); }
+    bool operator!=(const iterator &other)const{ return other.index != index || other.parent != parent; }
+  };
+  
+  struct const_iterator:public std::iterator<std::forward_iterator_tag, const_element_type>{
+    const ndarray_base & parent;
+    size_t current_index;
+    const_iterator(const ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
+    const_element_type operator*()const{ return parent[current_index]; }
+    const_iterator & operator++(){ ++current_index; return *this; }
+    const_iterator operator++(int v){return const_iterator(parent, current_index++(v)); }
+    bool operator!=(const const_iterator &other)const{ return other.index != index || other.parent != parent; }
+  };
+  
+  iterator begin(){ return iterator(*this, 0); }
+  iterator end(){ return iterator(*this, size()); }
+  const_iterator begin()const{ return const_iterator(*this, 0); }
+  const_iterator end()const{ return const_iterator(*this, size()); }
   
   template <typename Idx> disable_if_one_dimensional<const const_element_type,Idx> operator[](Idx i)const{
     auto off = offset() + i*stride().template get<0>();
@@ -175,10 +199,6 @@ public:
     }
   }
   
-  template <typename F> void element_wise(F f){
-    element_wise_helper(f, index_tuple<>());
-  }
-  
   using transposed_type = ndarray_base<T, reversed_index_tuple_type<Shape> , reversed_index_tuple_type<Stride>, Offset, borrowed_data<T>>;
   using const_transposed_type = ndarray_base<T, reversed_index_tuple_type<Shape> , reversed_index_tuple_type<Stride>, Offset, borrowed_data<const T>>;
   
@@ -188,6 +208,10 @@ public:
 
   const_transposed_type transpose()const{
     return const_transposed_type(reverse(_shape),reverse(_stride),_offset,data.get());
+  }
+  
+  template <typename F> void element_wise(F f){
+    element_wise_helper(f, index_tuple<>());
   }
   
 };
@@ -247,6 +271,5 @@ public:
     
     stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>()){}
   };
-
 
 }

@@ -40,7 +40,6 @@ template<size_t N = 10000,class F,typename ... Args> __attribute__ ((noinline)) 
   std::cout << name << " took " << std::chrono::duration <double, std::nano> (diff).count() << " ns" << std::endl;
 }
 
-
 int main(){
   
   static_index_tuple<10,100> size;
