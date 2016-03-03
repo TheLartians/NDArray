@@ -19,8 +19,8 @@ template <template<class,class> class Array,typename S> __attribute__ ((noinline
   array.transpose()[21].fill(3);
   array[8] = array[0];
   
-  array.slice(static_index_tuple<1,20>(), static_index_tuple<5,25>(), static_index_tuple<1,2>()) = 4;
-  array.slice(static_index_tuple<3,2>(), static_index_tuple<5,5>()) = 5;
+  array.slice(static_index_tuple<1,20>(), static_index_tuple<5,25>(), static_index_tuple<1,2>()).fill(4);
+  array.slice(static_index_tuple<3,2>(), static_index_tuple<5,5>()).fill(5);
 
   array.transpose().slice(static_index_tuple<1,1>(), static_index_tuple<1,5>()) = array.slice(static_index_tuple<1,1>(), static_index_tuple<1,5>());
   
@@ -41,12 +41,10 @@ template<size_t N = 10000,class F,typename ... Args> __attribute__ ((noinline)) 
 }
 
 int main(){
-  
-  static_index_tuple<10,100> size;
-  std::cout << "example result:\n" << test<stack_ndarray>(size) << "\n.\n.\n.\n" << std::endl;
 
   {
   static_index_tuple<250,100> size;
+  std::cout << "example result:\n" << test<stack_ndarray>(size).slice(static_index_tuple<0,0>(), static_index_tuple<10,100>()) << "\n.\n.\n.\n" << std::endl;
   timeit("stack",[&](){ test<stack_ndarray>(size); });
   }
   
