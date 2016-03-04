@@ -6,11 +6,11 @@ A fast c++11 n-dimensional array template
 
 ## Run the example
 
-        g++ --std=c++11 -O3 -DNDEBUG timeit.cpp && ./a.out
+        g++ --std=c++11 -O3 -DNDEBUG main.cpp && ./a.out
         
 or using cmake:
 
-        cmake -DCMAKE_BUILD_TYPE=Release . && make && ./a.out
+        cmake -DCMAKE_BUILD_TYPE=Release . && make && ./main
 
 
 
