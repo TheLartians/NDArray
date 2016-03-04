@@ -7,20 +7,7 @@
 
 using namespace lars;
 
-
-__attribute__ ((noinline)) ndarray<dynamic_index_tuple<2>, static_index_tuple<10,10>> test(){
-  auto size = static_index_tuple<10,10>();
-  auto array = make_ndarray<dynamic_index_tuple<2>,stack_ndarray>(size);
-  using array_type = decltype(array);
-  array.element_wise([&](array_type::index_type idx){ return idx; });
-  array.transpose_in_place();
-  return std::move(array);
-}
-
 int main(){
-
-  std::cout << test() << std::endl;
-  return 0;
   
   // Create a resizable 2D array of doubles
   ndarray<double, dynamic_index_tuple<2>> array;
