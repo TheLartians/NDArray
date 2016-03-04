@@ -413,11 +413,12 @@ public:
   public:
     
     using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>;
+    
     using base::operator=;
     
     stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>()){}
     stack_ndarray(const stack_ndarray &other):base(other.shape(),other.stride(),static_index<0>()){
-      *this = other;
+      base::operator=(other);
     }
     
     template <typename oT,typename oShape,typename oStride,typename oOffset,typename oData> stack_ndarray(const ndarray_base<oT, oShape, oStride, oOffset, oData> & other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>()){
