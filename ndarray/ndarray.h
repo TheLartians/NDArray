@@ -32,7 +32,7 @@ template <class T> struct borrowed_data{
 
 template <class T,typename Shape,typename Stride,typename Offset,typename Data> class ndarray_base{
   
-public:
+protected:
   
   Shape _shape;
   Stride _stride;
@@ -99,31 +99,31 @@ public:
     return slice_type<Pos,Sha,Ste>(shape,stride()*step,offset,data.get());
   }
   
-  using element_type = ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<T> >;
-  using const_element_type = ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<const T> >;
+  using element_type = typename std::conditional<( Shape::size() > 1), ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<T> >, T & >::type;
+  using const_element_type = typename std::conditional<( Shape::size() > 1), ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<const T> >, const T & >::type;
   
   template <typename D> struct dummy_template{ const static bool value = true; };
   template <typename Ret,typename Dummy> using enable_if_one_dimensional = typename std::enable_if<(Shape::size() == 1) && dummy_template<Dummy>::value,Ret>::type;
   template <typename Ret,typename Dummy> using disable_if_one_dimensional = typename std::enable_if<(Shape::size() > 1) && dummy_template<Dummy>::value,Ret>::type;
 
-  struct iterator:public std::iterator<std::input_iterator_tag, element_type>{
+  struct iterator:public std::iterator<std::input_iterator_tag, std::remove_reference<element_type> >{
     ndarray_base & parent;
     size_t current_index;
     iterator(ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
     element_type operator*()const{ return parent[current_index]; }
     iterator & operator++(){ ++current_index; return *this; }
     iterator operator++()const{return iterator(parent, current_index+1); }
-    bool operator!=(const iterator &other)const{ return other.current_index != current_index || other.parent != parent; }
+    bool operator!=(const iterator &other)const{ return other.current_index != current_index || &other.parent != &parent; }
   };
   
-  struct const_iterator:public std::iterator<std::input_iterator_tag, const_element_type>{
+  struct const_iterator:public std::iterator<std::input_iterator_tag, std::remove_reference<const_element_type> >{
     const ndarray_base & parent;
     size_t current_index;
     const_iterator(const ndarray_base &_parent,size_t index):parent(_parent),current_index(index){ }
     const_element_type operator*()const{ return parent[current_index]; }
     const_iterator & operator++(){ ++current_index; return *this; }
     const_iterator operator++()const{return const_iterator(parent, current_index+1); }
-    bool operator!=(const const_iterator &other)const{ return other.current_index != current_index || other.parent != parent; }
+    bool operator!=(const const_iterator &other)const{ return other.current_index != current_index || &other.parent != &parent; }
   };
   
   iterator begin(){ return iterator(*this, 0); }
@@ -163,7 +163,7 @@ public:
     return data.get()[off];
   }
   
-  ndarray_base & operator=(const T &value){
+  template <typename D = void> enable_if_one_dimensional<ndarray_base &, D> operator=(const T &value){
     for(auto i:range(size())) (*this)[i] = value;
     return *this;
   }
@@ -179,8 +179,12 @@ public:
     return *this;
   }
   
-  void fill(const T &value){
-    *this = value;
+  template <class D=void> disable_if_one_dimensional<void, D> fill(const T &value){
+    for(auto row:*this) row.fill(value);
+  }
+
+  template <class D=void> enable_if_one_dimensional<void, D> fill(const T &value){
+    for(auto & v:*this) v = value;
   }
   
   template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> element_wise_helper(F f,Idx idx){
@@ -218,7 +222,7 @@ public:
 
 template <class T,typename Shape,typename Stride,typename Offset,typename Data> std::ostream & operator<<(std::ostream &stream,const ndarray_base<T, Shape, Stride, Offset, Data> & array){
   stream << '[';
-  for(auto i:range(array.size()-1)){
+  if(array.size() != 0) for(auto i:range(array.size()-1)){
     stream << array[i] << ',';
     for(auto i UNUSED:range(array.ndim()-1)) stream << '\n';
   }
@@ -261,6 +265,10 @@ public:
   
   heap_ndarray(heap_ndarray && other) = default;
   heap_ndarray &operator=(heap_ndarray && other) = default;
+
+  template <typename S> void resize(S shape){ base::_shape.set(shape); base::_stride.set(ndarray_calculator<Shape>::stride(shape)); base::data.resize(ndarray_calculator<Shape>::prod(shape).template get<0>()); }
+  template <typename ... Args> void resize(size_t first,Args ... rest){ resize(Shape(first,rest...)); }
+  
 };
   
   template <class T,typename Shape> class stack_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>{
@@ -271,5 +279,12 @@ public:
     
     stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>()){}
   };
+  
+  template <class T,typename Shape, template<class,class> class Array = heap_ndarray> using ndarray = Array<T, Shape>;
+  
+  template <class T,typename Shape, template<class,class> class Array = heap_ndarray> ndarray<T, Shape, Array> make_ndarray(Shape shape){
+    return ndarray<T, Shape, Array>(shape);
+  }
+  
 
 }

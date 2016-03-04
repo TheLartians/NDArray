@@ -10,4 +10,5 @@ FILE (GLOB_RECURSE headers ${PROJECT_SOURCE_DIR}/*.h)
 
 add_definitions(-std=c++11)
 add_executable(timeit timeit.cpp ${headers})
+add_executable(main main.cpp ${headers})
 

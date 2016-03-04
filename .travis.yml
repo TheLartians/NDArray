@@ -1,0 +1,36 @@
+language: cpp
+
+sudo: false
+
+compiler:
+- clang
+- gcc
+
+os:
+- linux
+- osx
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - libyajl-dev
+    - libxml2-dev
+    - gcc-4.9
+    - g++-4.9
+    - clang
+
+before_install:
+   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+
+install: 
+  - cmake -DCMAKE_BUILD_TYPE=Release .
+  - make
+
+script: 
+  - ./timeit
+  - ./main 
+ 
+notifications:
+  email: false
