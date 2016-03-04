@@ -13,8 +13,8 @@ template <template<class,class> class Array,typename S> __attribute__ ((noinline
   array.fill(0);
   
   for(auto i:range<unsigned>(3,array.size())) array[i] = i;
+  for(auto i:range(array[0].size())) array[0][i] = i;
   
-  array[0].fill(1);
   array[1].fill(2);
   array.transpose()[21].fill(3);
   array[8] = array[0];
