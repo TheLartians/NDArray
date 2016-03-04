@@ -144,6 +144,11 @@ public:
     apply_template(value_setter);
   }
   
+  template <typename Arg> index_tuple & operator=(const Arg &other){
+    set(other);
+    return *this;
+  }
+  
   template <typename F,typename Rhs> typename reducer<index_tuple<Indices...>,Rhs,F>::result_type reduce(Rhs rhs)const{
     typename reducer<index_tuple<Indices...>,Rhs,F>::result_type result;
     reducer<index_tuple<Indices...>,Rhs,F> reducer(*this,rhs);

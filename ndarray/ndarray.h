@@ -8,10 +8,13 @@ template <class Shape,size_t N = Shape::size()> struct ndarray_calculator{
   using next_prod_type = typename ndarray_calculator<Shape,N-1>::next_prod_type::template slice_type<1,Shape::size()>::template push_back_static_type<1>;
   using prod_type = typename next_prod_type::template mul_result< typename ndarray_calculator<Shape,N-1>::prod_type  >;
   using stride_type = typename prod_type::template slice_type<1,Shape::size()>::template push_back_static_type<1>;
+  using size_type = typename prod_type::template element_type<0>;
+  
   static next_prod_type next_prod(const Shape &shape){ return ndarray_calculator<Shape,N-1>::next_prod(shape).template slice<1,Shape::size()>().append(static_index_tuple<1>()); }
   static prod_type prod(const Shape &shape){ return next_prod(shape) * ndarray_calculator<Shape,N-1>::prod(shape); }
   static stride_type prod_to_stride(const prod_type &prod){ return prod.template slice<1,prod_type::size()>().template push_back<1>(); }
   static stride_type stride(const Shape &shape){ return prod_to_stride(prod(shape)); }
+  static size_type size(const Shape &shape){ return prod(shape).template get<0>(); }
 };
 
 template <class Shape> struct ndarray_calculator<Shape,0>{
@@ -31,15 +34,19 @@ template <class T> struct borrowed_data{
 };
 
 template <class T,typename Shape,typename Stride,typename Offset,typename Data> class ndarray_base{
+public:
+  
+  using shape_type = Shape;
+  using stride_type = Stride;
+  using offset_type = Offset;
   
 protected:
   
   Shape _shape;
   Stride _stride;
   Offset _offset;
-  
   Data data;
-  
+
   struct check_index{
     Shape shape;
     check_index(Shape _shape):shape(_shape){}
@@ -61,9 +68,18 @@ protected:
   
 public:
   
+  void swap(ndarray_base &other){
+    std::swap(data,other.data);
+    _shape = other._shape;
+    _stride = other._stride;
+  }
+  
   using index_type = dynamic_index_tuple<Shape::size()>;
   
-  template <typename ... DataArgs> ndarray_base(Shape shape,Stride stride,Offset offset,DataArgs ... data):_shape(shape),_stride(stride),_offset(offset),data(data...){ }
+  ndarray_base(Shape shape,Stride stride,Offset offset,Data && _data):_shape(shape),_stride(stride),_offset(offset),data(std::forward<Data>(_data)){ }
+  ndarray_base(Shape shape,Stride stride,Offset offset,const Data & _data):_shape(shape),_stride(stride),_offset(offset),data(_data){ }
+
+  template <typename ... DataArgs> ndarray_base(Shape shape,Stride stride,Offset offset,DataArgs ... data_args):_shape(shape),_stride(stride),_offset(offset),data(data_args...){ }
   
   ndarray_base(const ndarray_base &other) = delete;
   ndarray_base(ndarray_base &&other) = default;
@@ -100,6 +116,7 @@ public:
   }
   
   using element_type = typename std::conditional<( Shape::size() > 1), ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<T> >, T & >::type;
+  
   using const_element_type = typename std::conditional<( Shape::size() > 1), ndarray_base<T,typename Shape::template slice_type<1,Shape::size()>,typename Stride::template slice_type<1,Shape::size()>, dynamic_index, borrowed_data<const T> >, const T & >::type;
   
   template <typename D> struct dummy_template{ const static bool value = true; };
@@ -187,22 +204,87 @@ public:
     for(auto & v:*this) v = value;
   }
   
-  template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> element_wise_helper(F f,Idx idx){
+  template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_indices_helper(F f,Idx idx){
     auto i = idx.push_back(0);
     for(auto j:range(size())){
       i.template set<Idx::size()>(j);
-      (*this)[j] = f(i);
+      f(i);
     }
   }
   
-  template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> element_wise_helper(F f,Idx idx){
+  template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_indices_helper(F f,Idx idx){
     auto i = idx.push_back(0);
     for(auto j:range(size())){
       i.template set<Idx::size()>(j);
-      (*this)[j].element_wise_helper(f,i);
+      (*this)[j].for_all_indices_helper(f,i);
     }
   }
   
+  template <typename F> void for_all_indices(F f){
+    for_all_indices_helper(f, index_tuple<>());
+  }
+
+  template <typename F> void element_wise(F f){
+    for_all_indices( [&](index_type idx){ (*this)(idx) = f(idx); } );
+  }
+
+  template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(F f,Idx idx,size_t max){
+    auto i = idx.push_back(0);
+    for(auto j:range(max)){
+      i.template set<Idx::size()>(j);
+      f(i);
+    }
+  }
+  
+  template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(F f,Idx idx,size_t max){
+    auto i = idx.push_back(0);
+    for(auto j:range(max)){
+      i.template set<Idx::size()>(j);
+      (*this)[j].for_all_lower_indices_helper(f,i,j);
+    }
+  }
+  
+  template <typename F> void for_all_lower_indices(F f){
+    for_all_lower_indices_helper(f, index_tuple<>(),size());
+  }
+  
+  template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(F f,Idx idx,size_t min){
+    auto i = idx.push_back(0);
+    for(auto j:range(min,size())){
+      i.template set<Idx::size()>(j);
+      f(i);
+    }
+  }
+  
+  template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(F f,Idx idx,size_t min){
+    auto i = idx.push_back(0);
+    for(auto j:range(min,size())){
+      i.template set<Idx::size()>(j);
+      (*this)[j].for_all_upper_indices_helper(f,i,j+1);
+    }
+  }
+  
+  template <typename F> void for_all_upper_indices(F f){
+    for_all_upper_indices_helper(f, index_tuple<>(),0);
+  }
+  
+  template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(F f,Idx idx,size_t j){
+    auto i = idx.push_back(j);
+    i.template set<Idx::size()>(j);
+    f(i);
+  }
+  
+  template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(F f,Idx idx,size_t j){
+    auto i = idx.push_back(j);
+    i.template set<Idx::size()>(j);
+    (*this)[j].for_all_diagonal_indices_helper(f,i,j);
+  }
+  
+  template <typename F> void for_all_diagonal_indices(F f){
+    for(auto i:range(size()))for_all_diagonal_indices_helper(f, index_tuple<>(),i);
+  }
+
+
   using transposed_type = ndarray_base<T, reversed_index_tuple_type<Shape> , reversed_index_tuple_type<Stride>, Offset, borrowed_data<T>>;
   using const_transposed_type = ndarray_base<T, reversed_index_tuple_type<Shape> , reversed_index_tuple_type<Stride>, Offset, borrowed_data<const T>>;
   
@@ -214,9 +296,11 @@ public:
     return const_transposed_type(reverse(_shape),reverse(_stride),_offset,data.get());
   }
   
-  template <typename F> void element_wise(F f){
-    element_wise_helper(f, index_tuple<>());
+  void transpose_in_place(){
+    for_all_lower_indices([&](index_type idx){ std::swap((*this)(idx),(*this)(reverse(idx))); });
   }
+  
+  
   
 };
 
@@ -238,14 +322,30 @@ template <class T,typename Shape,typename Stride,typename Offset,typename Data> 
     size_t size = 0;
     
     heap_data(size_t size){ resize(size); }
-    heap_data(const heap_data &other){ resize(other.size); for(auto i:range(size)) data[i] = other.data[i]; }
+    heap_data(const heap_data &other){
+      resize(other.size); for(auto i:range(size)) data[i] = other.data[i];
+    }
+
+    heap_data(heap_data && other){
+      data = other.data;
+      size = other.size;
+      other.size = 0;
+      other.data = nullptr;
+    }
     
-    heap_data(heap_data && other){ data = other.data; size = other.size; other.size = 0; other.data = nullptr; }
-    heap_data &operator=(heap_data && other){ data = other.data; size = other.size; other.size = 0; other.data = nullptr; }
+    heap_data &operator=(heap_data && other){
+      std::swap(data,other.data);
+      std::swap(size,other.size);
+      return *this;
+    }
     
-    T * get()const{ return data; }
-    void resize(size_t _size){ size = _size; if(data){ delete [] data; data = nullptr; } if(size > 0) data = new T[size]; }
     heap_data & operator=(const heap_data &other){ resize(other.size); for(auto i:range(size)) data[i] = other.data[i]; }
+
+    T * get()const{ return data; }
+    void resize(size_t _size){
+      if(size == _size) return; size = _size; if(data){ delete [] data; data = nullptr; } if(size > 0) data = new T[size];
+    }
+    
     ~heap_data(){ if(data) delete [] data; }
   };
   
@@ -258,14 +358,52 @@ template <class T,typename Shape,typename Stride,typename Offset,typename Data> 
 template <class T,typename Shape> class heap_ndarray:public ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,heap_data<T>>{
 public:
   
+  heap_data<T> & get_data(){ return base::data; }
+  const heap_data<T> & get_data()const{ return base::data; }
+  
   using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,heap_data<T>>;
   using base::operator=;
   
   heap_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>(),ndarray_calculator<Shape>::prod(shape).template get<0>()){}
   
-  heap_ndarray(heap_ndarray && other) = default;
-  heap_ndarray &operator=(heap_ndarray && other) = default;
+  template <typename Shape2> heap_ndarray(heap_ndarray<T,Shape2> && other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>(),std::move(other.get_data())){ }
+  
+  template <typename Shape2> heap_ndarray & operator=(heap_ndarray<T,Shape2> && other){
+    base::data = std::move(other.get_data());
+    base::_shape = other.shape();
+    base::_stride = other.stride();
+    return *this;
+  }
+  
+  heap_ndarray(heap_ndarray && other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>(),std::move(other.get_data())){ }
+  
+  heap_ndarray & operator=(heap_ndarray && other){
+    base::swap(other);
+    return *this;
+  }
+  
+  heap_ndarray(const heap_ndarray& other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>(),other.get_data()){
+  
+  }
+  
+  heap_ndarray & operator=(const heap_ndarray& other){
+    resize(other.shape());
+    base::data = other.get_data();
+    return *this;
+  }
+  
+  template <typename Shape2> heap_ndarray(const heap_ndarray<T,Shape2> & other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>(),other.get_data()){ }
 
+  template <typename oT,typename oShape,typename oStride,typename oOffset,typename oData> heap_ndarray(const ndarray_base<oT, oShape, oStride, oOffset, oData> & other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>(),ndarray_calculator<Shape>::prod(other.shape()).template get<0>()){
+    base::operator=(other);
+  }
+  
+  template <typename oT,typename oShape,typename oStride,typename oOffset,typename oData> typename std::enable_if<oShape::size() == Shape::size(),heap_ndarray&>::type operator=(const ndarray_base<oT, oShape, oStride, oOffset, oData> & other){
+    resize(other.shape());
+    base::operator=(other);
+    return *this;
+  }
+  
   template <typename S> void resize(S shape){ base::_shape.set(shape); base::_stride.set(ndarray_calculator<Shape>::stride(shape)); base::data.resize(ndarray_calculator<Shape>::prod(shape).template get<0>()); }
   template <typename ... Args> void resize(size_t first,Args ... rest){ resize(Shape(first,rest...)); }
   
@@ -275,14 +413,23 @@ public:
   public:
     
     using base = ndarray_base<T,Shape, typename ndarray_calculator<Shape>::stride_type, static_index<0>,stack_data<T, ndarray_calculator<Shape>::prod_type::template get<0>() >>;
+    
     using base::operator=;
     
     stack_ndarray(Shape shape = Shape()):base(shape,ndarray_calculator<Shape>::stride(shape),static_index<0>()){}
+    stack_ndarray(const stack_ndarray &other):base(other.shape(),other.stride(),static_index<0>()){
+      base::operator=(other);
+    }
+    
+    template <typename oT,typename oShape,typename oStride,typename oOffset,typename oData> stack_ndarray(const ndarray_base<oT, oShape, oStride, oOffset, oData> & other):base(other.shape(),ndarray_calculator<Shape>::stride(other.shape()),static_index<0>()){
+      base::operator=(other);
+    }
+    
   };
   
   template <class T,typename Shape, template<class,class> class Array = heap_ndarray> using ndarray = Array<T, Shape>;
   
-  template <class T,typename Shape, template<class,class> class Array = heap_ndarray> ndarray<T, Shape, Array> make_ndarray(Shape shape){
+  template <class T, template<class,class> class Array = heap_ndarray,typename Shape> ndarray<T, Shape, Array> make_ndarray(Shape shape){
     return ndarray<T, Shape, Array>(shape);
   }
   

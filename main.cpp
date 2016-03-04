@@ -7,9 +7,8 @@
 
 using namespace lars;
 
-
 int main(){
-
+  
   // Create a resizable 2D array of doubles
   ndarray<double, dynamic_index_tuple<2>> array;
   
@@ -34,7 +33,7 @@ int main(){
   // Fill a slice at the position (5,8) with sizes (3,4) and step size (2,3) with fives
   array.slice(dynamic_index_tuple<2>(5,8) , dynamic_index_tuple<2>(3,4), dynamic_index_tuple<2>(2,3)).fill(5);
   
-  // Show the array
+  // Print the array
   std::cout << array << std::endl;
   
   return 0;
