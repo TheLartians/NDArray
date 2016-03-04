@@ -9,12 +9,12 @@ os:
 - osx
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then sudo sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y ; fi
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; sudo apt-get -qq update ; fi
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; sudo apt-get install -qq gcc-4.9 ; fi
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; sudo apt-get install -qq g++-4.9 ; fi
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; export CC=/usr/bin/gcc-4.9 ; fi
-  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; export CXX=/usr/bin/g++-4.9 ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then sudo apt-get -qq update ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then sudo apt-get install -qq gcc-4.9 ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then sudo apt-get install -qq g++-4.9 ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then export CC=/usr/bin/gcc-4.9 ; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" && "$CXX" == "g++" ]]; then export CXX=/usr/bin/g++-4.9 ; fi
 
 install: 
   - cmake -DCMAKE_BUILD_TYPE=Release .
