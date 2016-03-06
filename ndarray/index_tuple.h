@@ -1,3 +1,6 @@
+
+#pragma once
+
 #include <tuple>
 #include <array>
 #include <memory>
@@ -232,9 +235,11 @@ public:
   
   template <size_t ... Indices> using static_index_tuple = index_tuple<static_index<Indices> ...>;
   
-  template <size_t N> struct make_dynamic_index_tuple{ using type = typename make_dynamic_index_tuple<N-1>::type::push_back_dynamic_type; };
-  template <> struct make_dynamic_index_tuple<0>{ using type = index_tuple<>; };
-  template <size_t N> using dynamic_index_tuple = typename make_dynamic_index_tuple<N>::type;
+  template <size_t N> struct make_dynamic_index_tuple_type{ using type = typename make_dynamic_index_tuple_type<N-1>::type::push_back_dynamic_type; };
+  template <> struct make_dynamic_index_tuple_type<0>{ using type = index_tuple<>; };
+  template <size_t N> using dynamic_index_tuple = typename make_dynamic_index_tuple_type<N>::type;
+  template <typename ... Args> dynamic_index_tuple<sizeof...(Args)> make_dynamic_index_tuple(Args ... args){ return dynamic_index_tuple<sizeof...(Args)>(args...); }
+  
   
   template <typename ... Indices> std::ostream & operator<<(std::ostream &stream, const index_tuple<Indices...> & idx){
     stream << '(';

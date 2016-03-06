@@ -10,7 +10,7 @@ using namespace lars;
 int main(){
   
   // Create a resizable 2D array of doubles
-  ndarray<double, dynamic_index_tuple<2>> array;
+  ndarray<double, 2> array;
   
   // Resize the array
   array.resize(10,20);
