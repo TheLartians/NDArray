@@ -16,9 +16,6 @@ IF(LARS_BUILD_EXAMPLES)
   SET(lars_headers ${lars_headers} ${headers})
   SET(lars_include_dirs ${lars_include_dirs} "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-
- MESSAGE(test: "${lars_include_dirs}")
-
   include_directories(${lars_include_dirs})
   set(CMAKE_CXX_STANDARD 11)
 
