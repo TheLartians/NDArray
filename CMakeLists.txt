@@ -8,9 +8,10 @@ IF(has_parent)
   SET(lars_headers ${lars_headers} ${headers} PARENT_SCOPE)
   SET(lars_include_dirs ${lars_include_dirs} "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 ELSE()
-  MESSAGE(WARNING "NDArray examples can only be built in lars library context.")
+  MESSAGE(WARNING "building outside of parent context. Required headers might be missing.")
 ENDIF()
 
+find_package (Threads)
 
 IF(LARS_BUILD_EXAMPLES)
   SET(lars_headers ${lars_headers} ${headers})
@@ -24,8 +25,6 @@ IF(LARS_BUILD_EXAMPLES)
     get_filename_component(filename ${examplesourcefile} NAME)
     string( REPLACE ".cpp" "" examplename ${filename} )
     add_executable( ${examplename} ${examplesourcefile} ${headers})
+    target_link_libraries(${examplename}  ${CMAKE_THREAD_LIBS_INIT})
   endforeach( examplesourcefile ${test_sources} )
 ENDIF()
-
-
-
