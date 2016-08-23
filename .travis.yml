@@ -3,12 +3,12 @@ language: cpp
 sudo: false
 
 compiler:
-- clang
+#- clang
 - gcc
 
 os:
 - linux
-- osx
+#- osx
 
 addons:
   apt:
@@ -20,14 +20,12 @@ addons:
     - libxml2-dev
     - gcc-4.9
     - g++-4.9
-    - clang-3.5
+    - clang
     - cmake
     - cmake-data
-    - cmake
 
 before_install:
    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
-   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5" CC="clang-3.5"; fi
 
 install: 
   - cmake -DCMAKE_BUILD_TYPE=Release .
