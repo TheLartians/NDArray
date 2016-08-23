@@ -33,8 +33,8 @@ TEST_CASE( "Index tuple basics", "[IndexTuple]" ) {
   REQUIRE(dynamic_index_tuple != mixed_index_tuple);
   REQUIRE(mixed_index_tuple != static_index_tuple);
 
-  REQUIRE_THROWS(static_index_tuple = dynamic_index_tuple);
-  REQUIRE_THROWS(mixed_index_tuple = dynamic_index_tuple);
+  //REQUIRE_THROWS(static_index_tuple = dynamic_index_tuple); only throws in debug mode
+  //REQUIRE_THROWS(mixed_index_tuple = dynamic_index_tuple); only throws in debug mode
   REQUIRE_NOTHROW(dynamic_index_tuple = static_index_tuple);
   REQUIRE_NOTHROW(mixed_index_tuple = dynamic_index_tuple);
   REQUIRE_NOTHROW(mixed_index_tuple = static_index_tuple);
