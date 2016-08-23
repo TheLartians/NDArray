@@ -32,7 +32,7 @@ install:
   - make
 
 script: 
-  - make test
+  - make test VERBOSE=1
  
 #notifications:
 #  mail: false
