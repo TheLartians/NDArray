@@ -27,13 +27,14 @@ addons:
 
 before_install:
    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5" CC="clang-3.5"; fi
 
 install: 
   - cmake -DCMAKE_BUILD_TYPE=Release .
   - make
 
 script: 
-  - make test VERBOSE=1
+  - make test ARGS="-V"
  
 #notifications:
 #  mail: false
