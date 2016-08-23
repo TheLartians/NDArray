@@ -10,17 +10,17 @@ os:
 - linux
 - osx
 
-#addons:
-#  apt:
-#    sources:
-#    - ubuntu-toolchain-r-test
-#    packages:
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
 #    - libyajl-dev
 #    - libxml2-dev
 #    - gcc-4.9
 #    - g++-4.9
 #    - clang
-#    - cmake
+    - cmake
 #
 #before_install:
 #   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
