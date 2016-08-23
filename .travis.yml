@@ -13,14 +13,14 @@ os:
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+    - kalakris-cmake
     packages:
     - cmake-3.1
 
 #addons:
 #  apt:
-    sources:
-    - ubuntu-toolchain-r-test
+#    sources:
+#    - ubuntu-toolchain-r-test
 #    packages:
 #    - libyajl-dev
 #    - libxml2-dev
