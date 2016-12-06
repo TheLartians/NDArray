@@ -14,6 +14,7 @@ template <size_t size> void SquareMatrixTests(){
   });
   
   REQUIRE((matrix.inverse() * matrix > 1e-4) == Mat::create_identity());
+
 }
 
 TEST_CASE( "Matrix Tests", "[Matrix]" ) {
