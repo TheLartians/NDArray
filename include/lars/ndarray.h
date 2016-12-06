@@ -711,7 +711,7 @@ namespace lars{
     
     Scalar min()const{
       Scalar res;
-      res = back();
+      res = front();
       for_all_values([&](const Scalar &v){ res = v>res?res:v; });
       return res;
     }
