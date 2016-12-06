@@ -702,6 +702,14 @@ namespace lars{
         return (*this)(shape() - IndexTupleRepeat<1,ndim()>());
     }
     
+    Scalar &front(){
+        return (*this)(IndexTupleRepeat<0,ndim()>());
+    }
+
+    Scalar &back(){
+        return (*this)(shape() - IndexTupleRepeat<1,ndim()>());
+    }
+    
     Scalar max()const{
       Scalar res;
       res = front();
