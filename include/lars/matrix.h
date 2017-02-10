@@ -206,7 +206,7 @@ namespace lars {
       return m;
     }
     
-    template <typename OtherShape> using ProductShape = typename Shape::template Slice<0,1>::template append_type<typename OtherShape::template Slice<1, 2>>;
+    template <typename OtherShape> using ProductShape = typename Shape::template Slice<0,1>::template Append<typename OtherShape::template Slice<1, 2>>;
     
     template <size_t n, class Res,class Dummy> using enable_if_n_dimensional_array = typename std::enable_if<Base::ndim() == n, typename std::conditional<true, Res, Dummy>::type >::type;
     template <size_t n, class Res,class Dummy> using enable_if_at_least_n_dimensional_array = typename std::enable_if<Base::ndim() >= n, typename std::conditional<true, Res, Dummy>::type >::type;
