@@ -18,6 +18,7 @@ struct DynamicIndex{
   constexpr DynamicIndex(){}
   constexpr DynamicIndex(size_t _value):value(_value){}
   operator size_t()const{ return value; }
+  operator size_t&(){ return value; }
   constexpr static bool is_dynamic = true;
 };
   
