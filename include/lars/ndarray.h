@@ -693,17 +693,33 @@ namespace lars{
       for_all_values([&](const Scalar &v){ res += v; });
       return res;
     }
+
+    Scalar front()const{
+        return (*this)(IndexTupleRepeat<0,ndim()>());
+    }
+
+    Scalar back()const{
+        return (*this)(shape() - IndexTupleRepeat<1,ndim()>());
+    }
+    
+    Scalar &front(){
+        return (*this)(IndexTupleRepeat<0,ndim()>());
+    }
+
+    Scalar &back(){
+        return (*this)(shape() - IndexTupleRepeat<1,ndim()>());
+    }
     
     Scalar max()const{
       Scalar res;
-      res = 0;
+      res = front();
       for_all_values([&](const Scalar &v){ res = v>res?v:res; });
       return res;
     }
     
     Scalar min()const{
       Scalar res;
-      res = 0;
+      res = front();
       for_all_values([&](const Scalar &v){ res = v>res?res:v; });
       return res;
     }
