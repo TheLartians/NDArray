@@ -15,9 +15,9 @@ namespace lars{
   
   
   template <class Shape,size_t N = Shape::size()> struct NDArrayCalculator{
-    using NextProd = typename NDArrayCalculator<Shape,N-1>::NextProd::template Slice<1,Shape::size()>::template push_back_static_type<1>;
+    using NextProd = typename NDArrayCalculator<Shape,N-1>::NextProd::template Slice<1,Shape::size()>::template PushBackStatic<1>;
     using Prod = typename NextProd::template mul_result< typename NDArrayCalculator<Shape,N-1>::Prod  >;
-    using Stride = typename Prod::template Slice<1,Shape::size()>::template push_back_static_type<1>;
+    using Stride = typename Prod::template Slice<1,Shape::size()>::template PushBackStatic<1>;
     using Size = typename Prod::template ElementType<0>;
     
     static NextProd next_prod(const Shape &shape){ return NDArrayCalculator<Shape,N-1>::next_prod(shape).template slice<1,Shape::size()>().append(StaticIndexTuple<1>()); }
@@ -439,14 +439,14 @@ namespace lars{
     }
     
     using Transposed = NDArray<T, ReversedIndexTuple<Shape> , ReversedIndexTuple<Stride>, Offset, BorrowedData<T>>;
-    using const_transposed_type = NDArray<const T, ReversedIndexTuple<Shape> , ReversedIndexTuple<Stride>, Offset, BorrowedData<const T>>;
+    using ConstTransposed = NDArray<const T, ReversedIndexTuple<Shape> , ReversedIndexTuple<Stride>, Offset, BorrowedData<const T>>;
     
     Transposed transpose(){
       return Transposed(reverse(shape()),reverse(stride()),offset(),data());
     }
     
-    const_transposed_type transpose()const{
-      return const_transposed_type(reverse(shape()),reverse(stride()),offset(),data());
+    ConstTransposed transpose()const{
+      return ConstTransposed(reverse(shape()),reverse(stride()),offset(),data());
     }
     
     Copy copy()const{
