@@ -780,7 +780,7 @@ namespace lars{
   
   template <template <class,class,class> class NewType> struct BasicNDArrayCreator{
     template <class T,typename Shape,typename Stride,typename Offset,typename Data> using NDArray = NDArrayBase<T, Shape, Stride, Offset, Data, BasicNDArrayCreator>;
-    template<class T,class Shape> using NewNDArray = NewType<T,Shape,BasicNDArrayCreator>;
+    template<class T,class Shape> using NewNDArray = NewType<typename std::remove_const<T>::type,Shape,BasicNDArrayCreator>;
   };
   
   template <typename Char, typename Traits,class T,typename Shape,typename Stride,typename Offset,typename Data, typename Creator>

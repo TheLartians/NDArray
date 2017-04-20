@@ -325,7 +325,7 @@ namespace lars {
   // Matrix Type
   template <template <class,class,class> class Array> struct MatrixCreator{
     template <class T,typename Shape,typename Stride,typename Offset,typename Data> using NDArray = MatrixBase<T, Shape, Stride, Offset, Data, MatrixCreator>;
-    template <class T,typename Shape> using NewNDArray = Array<T, Shape , MatrixCreator> ;
+    template <class T,typename Shape> using NewNDArray = Array<typename std::remove_const<T>::type, Shape , MatrixCreator> ;
     template <class T,typename Shape,typename Stride,typename Offset> using MappedBasicNDArray = NDArrayBase<T, Shape, Stride , Offset, BorrowedData<T>, BasicNDArrayCreator<Array>>;
   };
   
