@@ -308,10 +308,10 @@ namespace lars {
       return atan2(y(),x());
     }
     
-    using Array = typename MatrixCreator::template MappedBasicNDArray<T,Shape,Stride,Offset>;
+    using MappedArray = typename MatrixCreator::template MappedBasicNDArray<T,Shape,Stride,Offset>;
     
-    Array as_array(){
-      return Array(this->shape(),this->stride(),this->offset(), this->data());
+    MappedArray as_array(){
+      return MappedArray(this->shape(),this->stride(),this->offset(), this->data());
     }
     
     using ConstArray = typename MatrixCreator::template MappedBasicNDArray<const T,Shape,Stride,Offset>;
