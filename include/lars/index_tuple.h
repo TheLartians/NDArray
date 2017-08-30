@@ -293,12 +293,19 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	  template <size_t N> using DynamicIndexTuple = typename make_dynamic_index_tuple_type<N>::type;
 	  template <typename ... Args> DynamicIndexTuple<sizeof...(Args)> make_dynamic_index_tuple(Args ... args){ return DynamicIndexTuple<sizeof...(Args)>(args...); }
 	  
-	  template <typename ... Indices> std::ostream & operator<<(std::ostream &stream, const IndexTuple<Indices...> & idx){
-	    stream << '(';
-	    idx.apply([&](size_t i,size_t val){ stream << val; if(i+1 != idx.size()) stream << ','; });
-    stream << ')';
-    return stream;
-  }
+    template <typename ... Indices> std::ostream & operator<<(std::ostream &stream, const IndexTuple<Indices...> & idx){
+      stream << '(';
+      idx.apply([&](size_t i,size_t val){ stream << val; if(i+1 != idx.size()) stream << ','; });
+      stream << ')';
+      return stream;
+    }
+    
+    template <typename ... Indices> std::wostream & operator<<(std::wostream &stream, const IndexTuple<Indices...> & idx){
+      stream << '(';
+      idx.apply([&](size_t i,size_t val){ stream << val; if(i+1 != idx.size()) stream << ','; });
+      stream << ')';
+      return stream;
+    }
   
   template <size_t N> struct make_index_tuple_range{ using type = typename make_index_tuple_range<N-1>::type::template make_append<IndexTuple<StaticIndex<N-1>>>::type; };
   template <> struct make_index_tuple_range<0>{ using type = IndexTuple<>; };
