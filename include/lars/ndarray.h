@@ -182,12 +182,12 @@ namespace lars{
       return i;
     }
     
-    const T & operator()(const Index &idx)const{
-      return data()[get_data_index(idx)];
+    template <typename ... Args> T & operator()(Args && ... args)const{
+      return data()[get_data_index(Index(args...))];
     }
     
-    T & operator()(const Index &idx){
-      return data()[get_data_index(idx)];
+    template <typename ... Args> T & operator()(Args && ... args){
+      return data()[get_data_index(Index(args...))];
     }
     
     template <typename Pos,typename Sha,typename Ste= IndexTupleRepeat<1, Shape::size()>> using Slice = NDArray<T,Sha, typename Stride::template mul_result<Ste>, DynamicIndex, BorrowedData<T> >;
