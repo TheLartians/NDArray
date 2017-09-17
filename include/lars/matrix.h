@@ -226,14 +226,16 @@ namespace lars {
       else return (*this)[i][0];
     }
     
+    using Base::operator();
+    
+
     template <typename ... Args> static const typename std::enable_if<is_vector(),typename MatrixCreator::template NewNDArray<Scalar, StaticIndexTuple<sizeof...(Args),1> > >::type create(Args ... args){
         typename MatrixCreator::template NewNDArray<Scalar, StaticIndexTuple<sizeof...(Args),1> > vec;
         vec = {static_cast<Scalar>(args)...};
         return vec;
     }
     
-    using Base::operator();
-
+    
     template <class Dummy = Scalar> typename std::enable_if<is_vector(),Dummy>::type & x(){ return (*this)(0); }
     template <class Dummy = Scalar> const typename std::enable_if<is_vector(),Dummy>::type & x()const{ return (*this)(0); }
     template <class Dummy = Scalar> typename std::enable_if<is_vector(),Dummy>::type & y(){ return (*this)(1); }

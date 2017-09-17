@@ -182,12 +182,20 @@ namespace lars{
       return i;
     }
     
-    template <typename ... Args> T & operator()(Args && ... args)const{
+    template <typename ... Args> typename std::enable_if<sizeof...(Args) == ndim(),const T &>::type operator()(Args && ... args)const{
       return data()[get_data_index(Index(args...))];
     }
     
-    template <typename ... Args> T & operator()(Args && ... args){
+    template <typename ... Args> typename std::enable_if<sizeof...(Args) == ndim(),T &>::type operator()(Args && ... args){
       return data()[get_data_index(Index(args...))];
+    }
+    
+    const T & operator()(const Index &idx)const{
+      return data()[get_data_index(idx)];
+    }
+    
+    T & operator()(const Index &idx){
+      return data()[get_data_index(idx)];
     }
     
     template <typename Pos,typename Sha,typename Ste= IndexTupleRepeat<1, Shape::size()>> using Slice = NDArray<T,Sha, typename Stride::template mul_result<Ste>, DynamicIndex, BorrowedData<T> >;
