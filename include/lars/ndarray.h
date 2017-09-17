@@ -325,6 +325,11 @@ namespace lars{
       return !((*this) == other);
     }
     
+    template <typename U = T,typename = typename std::enable_if<std::is_same<typename std::remove_const<U>::type, bool>::value>::type()> operator bool() const{
+      for(auto i:range(size())) if( !bool( (*this)[i] ) ) return false;
+      return true;
+    }
+    
     template <typename oT,typename oShape,typename oStride,typename oOffset,typename oData,typename oCreator>
     //typename std::enable_if<oShape::size() != Shape::size(),bool>::type
     bool operator==(const NDArrayBase<oT, oShape, oStride, oOffset, oData, oCreator> & other)const{
@@ -780,7 +785,7 @@ namespace lars{
   
   template <template <class,class,class> class NewType> struct BasicNDArrayCreator{
     template <class T,typename Shape,typename Stride,typename Offset,typename Data> using NDArray = NDArrayBase<T, Shape, Stride, Offset, Data, BasicNDArrayCreator>;
-    template<class T,class Shape> using NewNDArray = NewType<T,Shape,BasicNDArrayCreator>;
+    template<class T,class Shape> using NewNDArray = NewType<typename std::remove_const<T>::type,Shape,BasicNDArrayCreator>;
   };
   
   template <typename Char, typename Traits,class T,typename Shape,typename Stride,typename Offset,typename Data, typename Creator>

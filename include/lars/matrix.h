@@ -308,10 +308,10 @@ namespace lars {
       return atan2(y(),x());
     }
     
-    using Array = typename MatrixCreator::template MappedBasicNDArray<T,Shape,Stride,Offset>;
+    using MappedArray = typename MatrixCreator::template MappedBasicNDArray<T,Shape,Stride,Offset>;
     
-    Array as_array(){
-      return Array(this->shape(),this->stride(),this->offset(), this->data());
+    MappedArray as_array(){
+      return MappedArray(this->shape(),this->stride(),this->offset(), this->data());
     }
     
     using ConstArray = typename MatrixCreator::template MappedBasicNDArray<const T,Shape,Stride,Offset>;
@@ -325,7 +325,7 @@ namespace lars {
   // Matrix Type
   template <template <class,class,class> class Array> struct MatrixCreator{
     template <class T,typename Shape,typename Stride,typename Offset,typename Data> using NDArray = MatrixBase<T, Shape, Stride, Offset, Data, MatrixCreator>;
-    template <class T,typename Shape> using NewNDArray = Array<T, Shape , MatrixCreator> ;
+    template <class T,typename Shape> using NewNDArray = Array<typename std::remove_const<T>::type, Shape , MatrixCreator> ;
     template <class T,typename Shape,typename Stride,typename Offset> using MappedBasicNDArray = NDArrayBase<T, Shape, Stride , Offset, BorrowedData<T>, BasicNDArrayCreator<Array>>;
   };
   
