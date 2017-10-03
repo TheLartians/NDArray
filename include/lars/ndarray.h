@@ -358,7 +358,7 @@ namespace lars{
       for(auto & v:*this) v = value;
     }
     
-    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_indices_helper(F f,Idx idx)const{
+    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_indices_helper(const F &f,Idx idx)const{
       auto i = idx.push_back(0);
       for(auto j:range(size())){
         i.template set<Idx::size()>(j);
@@ -366,7 +366,7 @@ namespace lars{
       }
     }
     
-    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_indices_helper(F f,Idx idx)const{
+    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_indices_helper(const F &f,Idx idx)const{
       auto i = idx.push_back(0);
       for(auto j:range(size())){
         i.template set<Idx::size()>(j);
@@ -374,20 +374,37 @@ namespace lars{
       }
     }
     
-    template <typename F> void for_all_indices(F f){
+    
+    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_indices_helper(const F &f,Idx idx){
+      auto i = idx.push_back(0);
+      for(auto j:range(size())){
+        i.template set<Idx::size()>(j);
+        f(i);
+      }
+    }
+    
+    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_indices_helper(const F &f,Idx idx){
+      auto i = idx.push_back(0);
+      for(auto j:range(size())){
+        i.template set<Idx::size()>(j);
+        (*this)[j].for_all_indices_helper(f,i);
+      }
+    }
+    
+    template <typename F> void for_all_indices(const F &f){
       for_all_indices_helper(f, IndexTuple<>());
     }
     
-    template <typename F> void for_all_indices(F f)const{
+    template <typename F> void for_all_indices(const F &f)const{
       for_all_indices_helper(f, IndexTuple<>());
     }
     
     
-    template <typename F> void element_wise(F f){
+    template <typename F> void element_wise(const F &f){
       for_all_indices( [&](Index idx){ (*this)(idx) = f(idx); } );
     }
     
-    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(F f,Idx idx,size_t max){
+    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(const F &f,Idx idx,size_t max){
       auto i = idx.push_back(0);
       for(auto j:range(max)){
         i.template set<Idx::size()>(j);
@@ -395,7 +412,7 @@ namespace lars{
       }
     }
     
-    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(F f,Idx idx,size_t max){
+    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_lower_indices_helper(const F &f,Idx idx,size_t max){
       auto i = idx.push_back(0);
       for(auto j:range(max)){
         i.template set<Idx::size()>(j);
@@ -403,11 +420,11 @@ namespace lars{
       }
     }
     
-    template <typename F> void for_all_lower_indices(F f){
+    template <typename F> void for_all_lower_indices(const F &f){
       for_all_lower_indices_helper(f, IndexTuple<>(),size());
     }
     
-    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(F f,Idx idx,size_t min){
+    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(const F &f,Idx idx,size_t min){
       auto i = idx.push_back(0);
       for(auto j:range(min,size())){
         i.template set<Idx::size()>(j);
@@ -415,7 +432,7 @@ namespace lars{
       }
     }
     
-    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(F f,Idx idx,size_t min){
+    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_upper_indices_helper(const F &f,Idx idx,size_t min){
       auto i = idx.push_back(0);
       for(auto j:range(min,size())){
         i.template set<Idx::size()>(j);
@@ -423,31 +440,31 @@ namespace lars{
       }
     }
     
-    template <typename F> void for_all_upper_indices(F f){
+    template <typename F> void for_all_upper_indices(const F &f){
       for_all_upper_indices_helper(f, IndexTuple<>(),0);
     }
     
-    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(F f,Idx idx,size_t j){
+    template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(const F &f,Idx idx,size_t j){
       auto i = idx.push_back(j);
       i.template set<Idx::size()>(j);
       f(i);
     }
     
-    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(F f,Idx idx,size_t j){
+    template <typename F,typename Idx> disable_if_one_dimensional<void,Idx> for_all_diagonal_indices_helper(const F &f,Idx idx,size_t j){
       auto i = idx.push_back(j);
       i.template set<Idx::size()>(j);
       (*this)[j].for_all_diagonal_indices_helper(f,i,j);
     }
     
-    template <typename F> void for_all_diagonal_indices(F f){
+    template <typename F> void for_all_diagonal_indices(const F &f){
       for(auto i:range(size()))for_all_diagonal_indices_helper(f, IndexTuple<>(),i);
     }
     
-    template <typename F> void for_all_values(F f){
+    template <typename F> void for_all_values(const F &f){
       for_all_indices([&](const Index &idx){ f((*this)(idx)); });
     }
     
-    template <typename F> void for_all_values(F f)const{
+    template <typename F> void for_all_values(const F &f)const{
       for_all_indices([&](const Index &idx){ f((*this)(idx)); });
     }
     
@@ -468,7 +485,7 @@ namespace lars{
       return res;
     }
     
-    template <class F> Copy copy(F f)const{
+    template <class F> Copy copy(const F &f)const{
       Copy res(shape());
       for_all_indices([&](Index i){ res(i) = f((*this)(i)); });
       return res;
