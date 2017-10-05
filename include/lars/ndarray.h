@@ -377,6 +377,7 @@ namespace lars{
     
     template <typename F,typename Idx> enable_if_one_dimensional<void,Idx> for_all_indices_helper(const F &f,Idx idx){
       auto i = idx.push_back(0);
+      
       for(auto j:range(size())){
         i.template set<Idx::size()>(j);
         f(i);
@@ -592,7 +593,7 @@ namespace lars{
 #ifndef NDEBUG
       if(shape() != other.shape()) throw std::invalid_argument("summation of arrays with different size");
 #endif
-      this->for_all_indices([&](Index idx){ (*this)(idx) += other(idx); });
+      this->for_all_indices([&,self = this](auto &idx){ (*self)(idx) += other(idx); });
       return *(Super*)this;
     }
     
@@ -601,7 +602,7 @@ namespace lars{
 #ifndef NDEBUG
       if(shape() != other.shape()) throw std::invalid_argument("subtraction of arrays with different size");
 #endif
-      this->for_all_indices([&](Index idx){ (*this)(idx) -= other(idx); });
+      this->for_all_indices([&,self = this](Index idx){ (*self)(idx) -= other(idx); });
       return *(Super*)this;
     }
     
