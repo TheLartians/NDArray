@@ -462,11 +462,11 @@ namespace lars{
     }
     
     template <typename F> void for_all_values(const F &f){
-      for_all_indices([&](const Index &idx){ f((*this)(idx)); });
+      for_all_indices([&,self = this](const Index &idx){ f((*self)(idx)); });
     }
     
     template <typename F> void for_all_values(const F &f)const{
-      for_all_indices([&](const Index &idx){ f((*this)(idx)); });
+      for_all_indices([&,self = this](const Index &idx){ f((*self)(idx)); });
     }
     
     using Transposed = NDArray<T, ReversedIndexTuple<Shape> , ReversedIndexTuple<Stride>, Offset, BorrowedData<T>>;
@@ -488,7 +488,7 @@ namespace lars{
     
     template <class F> Copy copy(const F &f)const{
       Copy res(shape());
-      for_all_indices([&](Index i){ res(i) = f((*this)(i)); });
+      for_all_indices([&,self = this](Index i){ res(i) = f((*self)(i)); });
       return res;
     }
     
@@ -504,7 +504,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) && other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) && other(idx); });
       return res;
     }
     
@@ -514,7 +514,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) || other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) || other(idx); });
       return res;
     }
     
@@ -524,7 +524,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) > other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) > other(idx); });
       return res;
     }
     
@@ -534,7 +534,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) < other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) < other(idx); });
       return res;
     }
     
@@ -544,7 +544,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) >= other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) >= other(idx); });
       return res;
     }
     
@@ -554,7 +554,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) <= other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) <= other(idx); });
       return res;
     }
     
@@ -564,7 +564,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("comparison of arrays with different size");
 #endif
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) == (*this)(idx) <= other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) == (*self)(idx) <= other(idx); });
       return res;
     }
     
@@ -574,7 +574,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("summation of arrays with different size");
 #endif
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) + other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) + other(idx); });
       return res;
     }
     
@@ -584,7 +584,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("subtraction of arrays with different size");
 #endif
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) - other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) - other(idx); });
       return res;
     }
     
@@ -612,7 +612,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("product of arrays with different size");
 #endif
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) * other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) * other(idx); });
       return res;
     }
     
@@ -622,7 +622,7 @@ namespace lars{
       if(shape() != other.shape()) throw std::invalid_argument("summation of arrays with different size");
 #endif
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) / other(idx); });
+      res.for_all_indices([&,self = this](Index idx){ res(idx) = (*self)(idx) / other(idx); });
       return res;
     }
     
@@ -631,7 +631,7 @@ namespace lars{
 #ifndef NDEBUG
       if(shape() != other.shape()) throw std::invalid_argument("product of arrays with different size");
 #endif
-      this->for_all_indices([&](Index idx){ (*this)(idx) *= other(idx); });
+      this->for_all_indices([&,self = this](Index idx){ (*self)(idx) *= other(idx); });
       return *(Super*)this;
     }
     
@@ -640,77 +640,77 @@ namespace lars{
 #ifndef NDEBUG
       if(shape() != other.shape()) throw std::invalid_argument("quotient of arrays with different size");
 #endif
-      this->for_all_indices([&](Index idx){ (*this)(idx) /= other(idx); });
+      this->for_all_indices([&,self = this](Index idx){ (*self)(idx) /= other(idx); });
       return *(Super*)this;
     }
     
     CopyWithType<bool> operator&&(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) && s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) && s; });
       return res;
     }
     
     CopyWithType<bool> operator||(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) || s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) || s; });
       return res;
     }
     
     CopyWithType<bool> operator>(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) > s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) > s; });
       return res;
     }
     
     CopyWithType<bool> operator<(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) < s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) < s; });
       return res;
     }
     
     CopyWithType<bool> operator>=(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) >= s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) >= s; });
       return res;
     }
     
     CopyWithType<bool> operator<=(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) <= s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) <= s; });
       return res;
     }
     
     CopyWithType<bool> operator==(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) == s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) == s; });
       return res;
     }
     
     CopyWithType<bool> operator!=(const Scalar &s)const{
       CopyWithType<bool> res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) != s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) != s; });
       return res;
     }
     
     Copy operator*(const Scalar &s)const{
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) * s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) * s; });
       return res;
     }
     
     Copy operator/(const Scalar &s)const{
       Copy res(shape());
-      res.for_all_indices([&](Index idx){ res(idx) = (*this)(idx) / s; });
+      res.for_all_indices([&,self=this](Index idx){ res(idx) = (*self)(idx) / s; });
       return res;
     }
     
     Super & operator*=(const Scalar &s){
-      this->for_all_indices([&](Index idx){ (*this)(idx) *= s; });
+      this->for_all_indices([&,self=this](Index idx){ (*self)(idx) *= s; });
       return *(Super *)this;
     }
     
     Super & operator/=(const Scalar &s){
-      this->for_all_indices([&](Index idx){ (*this)(idx) /= s; });
+      this->for_all_indices([&,self=this](Index idx){ (*self)(idx) /= s; });
       return *(Super *)this;
     }
     

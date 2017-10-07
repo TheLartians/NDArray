@@ -257,9 +257,9 @@ namespace lars {
       Prod prod(typename Prod::Shape(m(),other.n()));
       
       prod = 0;
-      prod.for_all_indices([&](typename Prod::Index idx){
+      prod.for_all_indices([&,self=this](typename Prod::Index idx){
         auto i = idx.template get<0>(); auto j = idx.template get<1>();
-        for(auto k : range(other.m())) prod(idx) += (*this)(Index(i,k)) * other(Index(k,j));
+        for(auto k : range(other.m())) prod(idx) += (*self)(Index(i,k)) * other(Index(k,j));
       });
       return prod;
     }
