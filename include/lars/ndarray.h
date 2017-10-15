@@ -760,7 +760,7 @@ namespace lars{
     
     Scalar norm_squared()const{
       Scalar res = 0;
-      this->for_all_indices([&](Index idx){ res += (*this)(idx) * (*this)(idx); });
+      this->for_all_indices([&,self = this](Index idx){ res += (*self)(idx) * (*self)(idx); });
       return res;
     }
     
