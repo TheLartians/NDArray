@@ -117,7 +117,7 @@ namespace lars{
       IndexCheck(Shape _shape):shape(_shape){}
       
       template <size_t Idx> void operator()(const DynamicIndex &idx)const{
-        if(idx >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::to_string(Idx) + ": " + lars::to_string(idx));
+        if(idx >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::stream_to_string(Idx) + ": " + lars::stream_to_string(idx));
       }
       
       template <size_t Idx,size_t value> typename std::enable_if<!Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &v)const{
@@ -125,7 +125,7 @@ namespace lars{
       }
       
       template <size_t Idx,size_t value> typename std::enable_if<Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &v)const{
-        if(value >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::to_string(Idx) + ": " + lars::to_string(value));
+        if(value >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::stream_to_string(Idx) + ": " + lars::stream_to_string(value));
       }
       
     };
