@@ -1,5 +1,4 @@
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <lars/matrix.h>
 using namespace lars;
@@ -17,7 +16,7 @@ template <size_t size> void SquareMatrixTests(){
 
 }
 
-TEST_CASE( "Matrix Tests", "[Matrix]" ) {
+TEST_CASE( "Matrix Tests" ) {
   SquareMatrixTests<1>();
   SquareMatrixTests<2>();
   SquareMatrixTests<3>();

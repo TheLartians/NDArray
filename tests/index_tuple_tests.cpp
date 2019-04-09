@@ -1,10 +1,9 @@
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <lars/index_tuple.h>
 using namespace lars;
 
-TEST_CASE( "Index tuple basics", "[IndexTuple]" ) {
+TEST_CASE( "Index tuple basics" ) {
   StaticIndexTuple<1,2,3,4> static_index_tuple;
   REQUIRE( static_index_tuple.get<0>() == 1 );
   REQUIRE( static_index_tuple.get<1>() == 2 );

@@ -1,45 +1,115 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-SET(PROJECT_NAME Lars${PROJECT_NAME})
-project(${PROJECT_NAME})
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
+# ---- Project ----
+
+project(LarsNDArray 
+  VERSION 0.1
+  LANGUAGES CXX
+)
+
+if(${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
+endif()
+
+# ---- Configuration variables ----
+
+option(BUILD_LARS_NDARRAY_EXAMPLES "Enable examples" OFF)
+option(ENABLE_LARS_NDARRAY_TESTS "Enable tests" OFF)
+
+# ---- Dependencies ----
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake)
+
+CPMAddPackage(
+  NAME LHC
+  GIT_REPOSITORY https://github.com/TheLartians/LHC.git
+  VERSION 0.3
+)
+
+# ---- Minimum CXX ----
+
+if(NOT CMAKE_CXX_STANDARD GREATER 17)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# ---- Header target ----
 
 FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/lars/*.h")
-get_directory_property(has_parent PARENT_DIRECTORY)
+add_library(LarsNDArrayHeaders EXCLUDE_FROM_ALL ${headers})
+SET_TARGET_PROPERTIES(LarsNDArrayHeaders PROPERTIES LINKER_LANGUAGE CXX)
 
-IF(LARS_LIBRARY)
-  SET(lars_headers ${lars_headers} ${headers} PARENT_SCOPE)
-  SET(lars_include_dirs ${lars_include_dirs} "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
-ELSEIF(has_parent)
-  SET(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/bundled/include)
-  SET(${PROJECT_NAME}_INCLUDE_DIRS ${include_dirs} CACHE INTERNAL "")
-ELSE()
-  SET(LARS_BUILD_EXAMPLES TRUE)
-  SET(LARS_BUILD_TESTS TRUE)
+# ---- Create library ----
+
+add_library(LarsNDArray INTERFACE)
+
+target_link_libraries(LarsNDArray INTERFACE LHC)
+
+target_include_directories(LarsNDArray 
+  INTERFACE 
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  "${PROJECT_BINARY_DIR}/LarsNDArrayConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+# ---- Install ----
+
+install(
+  TARGETS LarsNDArray
+  EXPORT LarsNDArrayTargets
+  LIBRARY DESTINATION lib COMPONENT Runtime
+  ARCHIVE DESTINATION lib COMPONENT Development
+  RUNTIME DESTINATION bin COMPONENT Runtime
+  PUBLIC_HEADER DESTINATION include COMPONENT Development
+  BUNDLE DESTINATION bin COMPONENT Runtime
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/cmake/LarsNDArrayConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/LarsNDArrayConfig.cmake"
+  INSTALL_DESTINATION lib/cmake/LarsNDArray
+)
+
+install(
+  EXPORT LarsNDArrayTargets 
+  DESTINATION lib/cmake/LarsNDArray
+)
+
+install(
+  FILES 
+    "${PROJECT_BINARY_DIR}/LarsNDArrayConfigVersion.cmake"
+    "${PROJECT_BINARY_DIR}/LarsNDArrayConfig.cmake"
+  DESTINATION 
+    lib/cmake/LarsNDArray
+)
+
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION include
+)
+
+# ---- Examples ----
+
+IF(${BUILD_LARS_NDARRAY_EXAMPLES})
+  add_subdirectory(examples)    
 ENDIF()
 
-IF(LARS_BUILD_EXAMPLES)
-  SET(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/bundled/include)
-  include_directories(${include_dirs})
-  set(CMAKE_CXX_STANDARD 11)
-  file( GLOB example_sources ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp )
-  foreach( examplesourcefile ${example_sources} )
-    get_filename_component(filename ${examplesourcefile} NAME)
-    string( REPLACE ".cpp" "" examplename ${filename} )
-    add_executable( ${examplename} ${examplesourcefile} ${headers})
-  endforeach()
-ENDIF()
+# ---- Tests ----
 
-IF(LARS_BUILD_TESTS)
-  enable_testing()
-  SET(include_dirs ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/bundled/include)
-  include_directories(${include_dirs})
-  set(CMAKE_CXX_STANDARD 11)
-  file( GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp )
-  foreach( testsourcefile ${test_sources} )
-    get_filename_component(filename ${testsourcefile} NAME)
-    string( REPLACE ".cpp" "" testname ${filename} )
-    add_executable(${testname} ${testsourcefile} ${headers})
-    add_test(NAME ${testname} COMMAND ${testname})
-  endforeach()
-ENDIF()
+if(${ENABLE_LARS_NDARRAY_TESTS})
+  ENABLE_TESTING()  
+  add_subdirectory(tests)  
+endif()
+

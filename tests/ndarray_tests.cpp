@@ -1,12 +1,11 @@
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <lars/ndarray.h>
 using namespace lars;
 
 #include <iostream>
 
-TEST_CASE( "NDArray Tests", "[NDArray]" ) {
+TEST_CASE( "NDArray Tests" ) {
   
    using Array9 = StackNDArray<float,StaticIndexTuple<9>>;
    
