@@ -118,7 +118,7 @@ namespace lars {
     template <class M> typename M::Copy LUP_inverse(const LUP_Decomposition<M> &LUP){
       typename M::Copy inv(LUP.LU.shape());
       inv.fill(0);
-      for(auto j=0;j<LUP.LU.size();j++) {
+      for(auto j=0;j<(int)LUP.LU.size();j++) {
         auto col = inv.transpose()[j];
         col[j]=1.0;
         LUP_solve_inplace(LUP,col);

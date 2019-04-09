@@ -107,8 +107,8 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	    f(Idx,std::get<Idx>(*this));
 	  }
 
-	  template <size_t Idx = 0,typename F = void> typename std::enable_if<size()+0*Idx == 0>::type apply(const F & f)const{ }
-	  template <size_t Idx = 0,typename F = void> typename std::enable_if<size()+0*Idx == 0>::type apply_template(F & f)const{ }
+	  template <size_t Idx = 0,typename F = void> typename std::enable_if<size()+0*Idx == 0>::type apply(const F &)const{ }
+	  template <size_t Idx = 0,typename F = void> typename std::enable_if<size()+0*Idx == 0>::type apply_template(F &)const{ }
 	  
 	  template <size_t Idx> using ElementType = typename std::tuple_element<Idx, std::tuple<Indices...> >::type;
 	  
@@ -133,13 +133,13 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	    
 	    template <size_t Idx>  void operator()(DynamicIndex & value)const{ value = size_t(std::get<Idx + Begin>(values)); }
 	    
-	    template <size_t Idx,size_t value> enable_if_dynamic<Idx> operator()(StaticIndex<value> &v)const{
+	    template <size_t Idx,size_t value> enable_if_dynamic<Idx> operator()(StaticIndex<value> &)const{
 	#ifndef NDEBUG
 	      if(std::get<Idx + Begin>(values) != value) throw std::runtime_error("changing static index");
 	#endif
 	    }
 	    
-	    template <size_t Idx,size_t value> enable_if_not_dynamic<Idx> operator()(StaticIndex<value> &v)const{
+	    template <size_t Idx,size_t value> enable_if_not_dynamic<Idx> operator()(StaticIndex<value> &)const{
 	      static_assert( std::tuple_element<Idx + Begin, Args>::type::value == value, "changing static index");
 	    }
 
@@ -178,7 +178,7 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	  template <size_t Idx> void set(size_t value){ std::get<Idx>(*this) = value; }
 	  template <size_t ... Idx> void set(){ set(std::make_tuple( StaticIndex<Idx>() ... ) ); }
 	  
-	  template <size_t Idx> enable_if_dynamic<Idx, size_t> get()const{ return std::get<Idx>(*this).value; }
+	  template <size_t Idx> enable_if_dynamic<Idx, size_t> get()const{ return std::get<Idx>((const std::tuple<Indices...> &)*this).value; }
 	  template <size_t Idx> enable_if_not_dynamic<Idx, size_t> static constexpr get(){ return std::tuple_element<Idx, std::tuple<Indices...> >::type::value; }
 
 
@@ -317,7 +317,7 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
     using type = typename current::template make_append<rest>::type;
     static type reverse(IndexTupleT tuple){ return current(tuple.template get<N-1>()).append(make_reverse_index_tuple<IndexTupleT,N-1>::reverse(tuple)); }
   };
-  template <typename IndexTupleT> struct make_reverse_index_tuple<IndexTupleT,0>{ using type = IndexTuple<>; static type reverse(IndexTupleT tuple){ return type(); } };
+  template <typename IndexTupleT> struct make_reverse_index_tuple<IndexTupleT,0>{ using type = IndexTuple<>; static type reverse(IndexTupleT){ return type(); } };
   template <typename IndexTupleT> using ReversedIndexTuple = typename make_reverse_index_tuple<IndexTupleT>::type;
   template <typename IndexTupleT> ReversedIndexTuple<IndexTupleT> reverse(IndexTupleT tuple){ return make_reverse_index_tuple<IndexTupleT>::reverse(tuple); }
   

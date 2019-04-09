@@ -68,21 +68,21 @@ namespace lars{
   };
   
   template <class Shape> struct ImplicitShapeStorage{
-    ImplicitShapeStorage(Shape shape = Shape()){}
+    ImplicitShapeStorage(Shape = Shape()){}
     Shape shape()const{ return Shape(); }
-    void set(const Shape &shape){ static_assert(!Shape::is_dynamic(), "implicit shape cannot be dynamic"); }
+    void set(const Shape &){ static_assert(!Shape::is_dynamic(), "implicit shape cannot be dynamic"); }
   };
   
   template <class Stride> struct ImplicitStrideStorage{
-    ImplicitStrideStorage(Stride stride = Stride()){}
+    ImplicitStrideStorage(Stride  = Stride()){}
     Stride stride()const{ return Stride(); }
-    void set(const Stride &stride){ static_assert(!Stride::is_dynamic(), "implicit stride cannot be dynamic"); }
+    void set(const Stride &){ static_assert(!Stride::is_dynamic(), "implicit stride cannot be dynamic"); }
   };
   
   template <class Offset> struct ImplicitOffsetStorage{
-    ImplicitOffsetStorage(Offset offset = Offset()){}
+    ImplicitOffsetStorage(Offset = Offset()){}
     Offset offset()const{ return Offset(); }
-    void set(const Offset &offset){ static_assert(!Offset::is_dynamic, "implicit offset cannot be dynamic"); }
+    void set(const Offset &){ static_assert(!Offset::is_dynamic, "implicit offset cannot be dynamic"); }
   };
   
   template <class Shape> using ShapeStorage = typename std::conditional<Shape::is_dynamic(), ExplicitShapeStorage<Shape>, ImplicitShapeStorage<Shape>>::type;
@@ -120,11 +120,11 @@ namespace lars{
         if(idx >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::stream_to_string(Idx) + ": " + lars::stream_to_string(idx));
       }
       
-      template <size_t Idx,size_t value> typename std::enable_if<!Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &v)const{
+      template <size_t Idx,size_t value> typename std::enable_if<!Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &)const{
         static_assert( value < Shape::template get<Idx>(), "invalid array index" );
       }
       
-      template <size_t Idx,size_t value> typename std::enable_if<Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &v)const{
+      template <size_t Idx,size_t value> typename std::enable_if<Shape::template ElementType<Idx>::is_dynamic>::type operator()(const StaticIndex<value> &)const{
         if(value >= shape.template get<Idx>()) throw std::range_error("invalid array index " + lars::stream_to_string(Idx) + ": " + lars::stream_to_string(value));
       }
       
@@ -178,7 +178,7 @@ namespace lars{
       idx.apply_template(check);
 #endif
       size_t i = offset();
-      (stride() * idx).apply([&](size_t idx,size_t v){ i+=v; });
+      (stride() * idx).apply([&](size_t ,size_t v){ i+=v; });
       return i;
     }
     
@@ -274,7 +274,7 @@ namespace lars{
     template <typename Idx> disable_if_one_dimensional<ElementType,Idx> operator[](Idx i){
       auto off = offset() + i*stride().template get<0>();
 #ifndef NDEBUG
-      if(i>=shape().template get<0>()) throw std::range_error("invalid array index");
+      if(i>=(int)shape().template get<0>()) throw std::range_error("invalid array index");
 #endif
       return ElementType(shape().template slice<1,Shape::size()>(),stride().template slice<1,Shape::size()>(),off,data());
     }
