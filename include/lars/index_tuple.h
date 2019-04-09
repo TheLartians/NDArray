@@ -269,7 +269,7 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	  template <size_t Idx> struct IndexIfInvalid{ template <size_t I2> static constexpr size_t get(){ return 0; } };
 
 	  template <size_t Idx> struct IndexIfValid{
-	    template <size_t I2> static constexpr enable_if_not_dynamic<I2, size_t> get(){ return lars::IndexTuple<Indices...>::get<I2>(); }
+	    template <size_t I2> static constexpr enable_if_not_dynamic<I2, size_t> get(){ return std::tuple_element<Idx, std::tuple<Indices...> >::type::value; }
 	    template <size_t I2> static constexpr enable_if_dynamic<I2, size_t> get(){ return 0; }
 	  };
 	  
