@@ -331,7 +331,7 @@ namespace lars {
     template <class T,typename Shape,typename Stride,typename Offset> using MappedBasicNDArray = NDArrayBase<T, Shape, Stride , Offset, BorrowedData<T>, BasicNDArrayCreator<Array>>;
   };
   
-  template <class T,size_t m,size_t n> using Matrix = MatrixCreator<StackNDArray>::NewNDArray<T, StaticIndexTuple<m,n>>;;
+  template <class T,size_t m,size_t n> using Matrix = MatrixCreator<StackNDArray>::NewNDArray<T, StaticIndexTuple<m,n>>;
   template <class T> using DynamicMatrix = MatrixCreator<HeapNDArray>::NewNDArray<T, DynamicIndexTuple<2>>;
     
 }

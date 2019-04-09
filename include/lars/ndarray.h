@@ -274,7 +274,7 @@ namespace lars{
     template <typename Idx> disable_if_one_dimensional<ElementType,Idx> operator[](Idx i){
       auto off = offset() + i*stride().template get<0>();
 #ifndef NDEBUG
-      if(i>=(int)shape().template get<0>()) throw std::range_error("invalid array index");
+      if(i>=(Idx)shape().template get<0>()) throw std::range_error("invalid array index");
 #endif
       return ElementType(shape().template slice<1,Shape::size()>(),stride().template slice<1,Shape::size()>(),off,data());
     }
