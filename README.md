@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/TheLartians/NDArray2.svg?branch=master)](https://travis-ci.com/TheLartians/NDArray2)
+[![Build Status](https://travis-ci.com/TheLartians/NDArray2.svg?branch=master)](https://travis-ci.com/TheLartians/NDArray)
 
 # Lars::NDArray
 A fast c++11 n-dimensional array template
