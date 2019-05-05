@@ -34,6 +34,16 @@ template <size_t _value> struct StaticIndex{
   constexpr static bool is_dynamic = false;
 };
 
+  std::ostream &operator<<(std::ostream &stream, const DynamicIndex &idx){
+    stream << size_t(idx);
+    return stream;
+  }
+  
+  template <size_t _value> std::ostream &operator<<(std::ostream &stream, const StaticIndex<_value> &idx){
+    stream << size_t(idx);
+    return stream;
+  }
+  
 template <typename ... Indices> class IndexTuple;
 
 template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
@@ -151,9 +161,8 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	public:
 	  
 	  IndexTuple(){}
-	  
 	  template <typename ... Args> IndexTuple(const IndexTuple<Args...> &other){ set(other); }
-	  template <typename ... Args> IndexTuple(Args ... args){ set(args...); }
+    // explicit IndexTuple(Indices ... indices){ set(indices...); }
 	  
 	  template <typename ... Args> void set(const std::tuple<Args...> &args){
 	    static_assert(sizeof...(Args) == size(), "index tuple size doesn't match size");

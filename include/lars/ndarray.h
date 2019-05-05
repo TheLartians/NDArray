@@ -11,6 +11,8 @@
 #include <type_traits>
 #include <cmath>
 
+egroirieoghjre
+
 namespace lars{
   
   
@@ -959,8 +961,9 @@ namespace lars{
       // static_assert(sizeof...(args) + 1 == NDArrayCalculator<Shape>::Prod::template get<0>(),"initialization arguments must match array size");
     }
     
-    explicit StackNDArray(Shape shape = Shape()):Base(shape,NDArrayCalculator<Shape>::stride(shape),StaticIndex<0>()){}
-
+    StackNDArray():Base(Shape(),NDArrayCalculator<Shape>::stride(Shape()),StaticIndex<0>()){}
+    template <typename ... Args> explicit StackNDArray(const lars::IndexTuple<Args...> &shape):Base(shape,NDArrayCalculator<Shape>::stride(shape),StaticIndex<0>()){}
+    
     StackNDArray(const StackNDArray &other):Base(other.shape(),other.stride(),StaticIndex<0>()){
       Base::operator=(other);
     }
