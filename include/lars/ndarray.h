@@ -11,8 +11,6 @@
 #include <type_traits>
 #include <cmath>
 
-egroirieoghjre
-
 namespace lars{
   
   

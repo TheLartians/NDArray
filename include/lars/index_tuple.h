@@ -162,7 +162,7 @@ template <typename Lhs,typename Rhs,typename F> struct Reducer:public F{
 	  
 	  IndexTuple(){}
 	  template <typename ... Args> IndexTuple(const IndexTuple<Args...> &other){ set(other); }
-    // explicit IndexTuple(Indices ... indices){ set(indices...); }
+    template <typename ... Args> explicit IndexTuple(Args ... indices){ set(indices...); }
 	  
 	  template <typename ... Args> void set(const std::tuple<Args...> &args){
 	    static_assert(sizeof...(Args) == size(), "index tuple size doesn't match size");
