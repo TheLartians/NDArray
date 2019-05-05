@@ -34,7 +34,7 @@ template <size_t _value> struct StaticIndex{
   constexpr static bool is_dynamic = false;
 };
 
-  std::ostream &operator<<(std::ostream &stream, const DynamicIndex &idx){
+  inline std::ostream &operator<<(std::ostream &stream, const DynamicIndex &idx){
     stream << size_t(idx);
     return stream;
   }
