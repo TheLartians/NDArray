@@ -7,7 +7,7 @@ endif()
 # ---- Project ----
 
 project(LarsNDArray 
-  VERSION 0.1
+  VERSION 0.1.1
   LANGUAGES CXX
 )
 
@@ -22,7 +22,7 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
   NAME LHC
   GITHUB_REPOSITORY TheLartians/LHC
-  VERSION 0.4
+  VERSION 0.8.1
 )
 
 # CPMAddPackage("gh:TheLartians/LHC@0.4")

@@ -30,7 +30,7 @@ set_target_properties(LarsNDArrayTests PROPERTIES CXX_STANDARD 17)
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra -Werror)
+    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra -Werror -Werror=deprecated)
   elseif(MSVC)
     target_compile_options(LarsNDArray INTERFACE /W4 /WX)
     target_compile_definitions(LarsNDArrayTests PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
