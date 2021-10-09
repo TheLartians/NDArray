@@ -4,7 +4,7 @@ project(LarsNDArrayExamples LANGUAGES CXX)
 
 include(../cmake/CPM.cmake)
 
-CPMAddPackage(NAME LarsNDArrayExamples SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+cpmaddpackage(NAME LarsNDArrayExamples SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
 file(GLOB examples CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 

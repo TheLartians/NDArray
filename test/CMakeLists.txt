@@ -12,13 +12,13 @@ option(TEST_INSTALLED_VERSION "Test the version found by find_package" OFF)
 include(../cmake/CPM.cmake)
 include(../cmake/tools.cmake)
 
-CPMAddPackage("gh:catchorg/Catch2@2.13.7")
-CPMAddPackage("gh:TheLartians/Format.cmake@1.7.0")
+cpmaddpackage("gh:catchorg/Catch2@2.13.7")
+cpmaddpackage("gh:TheLartians/Format.cmake@1.7.0")
 
 if(TEST_INSTALLED_VERSION)
   find_package(LarsNDArray REQUIRED)
 else()
-  CPMAddPackage(NAME LarsNDArray SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+  cpmaddpackage(NAME LarsNDArray SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 endif()
 
 # ---- Create binary ----
@@ -30,11 +30,14 @@ set_target_properties(LarsNDArrayTests PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra -Werror)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES
+                                              "GNU")
+    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra
+                                                 -Werror)
   elseif(MSVC)
     target_compile_options(LarsNDArray INTERFACE /W4 /WX)
-    target_compile_definitions(LarsNDArrayTests PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
+    target_compile_definitions(LarsNDArrayTests
+                               PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
   endif()
 endif()
 
@@ -46,6 +49,7 @@ add_test(LarsNDArrayTests LarsNDArrayTests)
 # ---- code coverage ----
 
 if(ENABLE_TEST_COVERAGE)
-  target_compile_options(LarsNDArray INTERFACE -O0 -g -fprofile-arcs -ftest-coverage)
+  target_compile_options(LarsNDArray INTERFACE -O0 -g -fprofile-arcs
+                                               -ftest-coverage)
   target_link_options(LarsNDArray INTERFACE -fprofile-arcs -ftest-coverage)
 endif()

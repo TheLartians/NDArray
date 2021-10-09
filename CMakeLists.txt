@@ -6,33 +6,32 @@ endif()
 
 # ---- Project ----
 
-project(LarsNDArray 
+project(
+  LarsNDArray
   VERSION 0.1.1
-  LANGUAGES CXX
-)
+  LANGUAGES CXX)
 
 if(${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
+  message(
+    FATAL_ERROR
+      "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
+  )
 endif()
 
 # ---- Dependencies ----
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage(
-  NAME LHC
-  GITHUB_REPOSITORY TheLartians/LHC
-  VERSION 0.8.1
-)
+cpmaddpackage(NAME LHC GITHUB_REPOSITORY TheLartians/LHC VERSION 0.8.1)
 
 # CPMAddPackage("gh:TheLartians/LHC@0.4")
-CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
+cpmaddpackage("gh:TheLartians/PackageProject.cmake@1.8.0")
 
 # ---- Header target ----
 
-FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/lars/*.h")
+file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/lars/*.h")
 add_library(LarsNDArrayHeaders EXCLUDE_FROM_ALL ${headers})
-SET_TARGET_PROPERTIES(LarsNDArrayHeaders PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(LarsNDArrayHeaders PROPERTIES LINKER_LANGUAGE CXX)
 
 # ---- Create library ----
 
@@ -40,21 +39,27 @@ add_library(LarsNDArray INTERFACE)
 set_target_properties(LarsNDArray PROPERTIES CXX_STANDARD 17)
 target_link_libraries(LarsNDArray INTERFACE LHC)
 
-target_include_directories(LarsNDArray 
-  INTERFACE 
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
-)
+target_include_directories(
+  LarsNDArray
+  INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>)
 
 # ---- Install ----
 
-packageProject(
-  NAME ${PROJECT_NAME}
-  VERSION ${PROJECT_VERSION}
-  NAMESPACE ${PROJECT_NAME}
-  BINARY_DIR ${PROJECT_BINARY_DIR}
-  INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include
-  INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-  DEPENDENCIES "LHC 0.4"
-)
+packageproject(
+  NAME
+  ${PROJECT_NAME}
+  VERSION
+  ${PROJECT_VERSION}
+  NAMESPACE
+  ${PROJECT_NAME}
+  BINARY_DIR
+  ${PROJECT_BINARY_DIR}
+  INCLUDE_DIR
+  ${PROJECT_SOURCE_DIR}/include
+  INCLUDE_DESTINATION
+  include/${PROJECT_NAME}-${PROJECT_VERSION}
+  COMPATIBILITY
+  SameMajorVersion
+  DEPENDENCIES
+  "LHC 0.4")
