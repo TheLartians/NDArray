@@ -1,72 +1,25 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+set(CPM_DOWNLOAD_VERSION 0.34.0)
 
-if(CPM_DIRECTORY)
-  if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
-    return()
-  endif()
+if(CPM_SOURCE_CACHE)
+  # Expand relative path. This is important if the provided path contains a
+  # tilde (~)
+  get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
+  set(CPM_DOWNLOAD_LOCATION
+      "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+elseif(DEFINED ENV{CPM_SOURCE_CACHE})
+  set(CPM_DOWNLOAD_LOCATION
+      "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+else()
+  set(CPM_DOWNLOAD_LOCATION
+      "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
 endif()
 
-set(CPM_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
-set(CPM_PACKAGES "" CACHE INTERNAL "")
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+  message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+  file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+    ${CPM_DOWNLOAD_LOCATION})
+endif()
 
-include(FetchContent)
-include(CMakeParseArguments)
-
-option(CPM_LOCAL_PACKAGES_ONLY "Use only locally installed packages" OFF)
-option(CPM_REMOTE_PACKAGES_ONLY "Always download packages" OFF)
-
-
-function(CPMAddPackage)
-    
-  set(oneValueArgs
-    NAME
-    VERSION
-    GIT_TAG
-  )
-
-  cmake_parse_arguments(CPM_ARGS QUIET "${oneValueArgs}" "" ${ARGN})
-
-  if (NOT CPM_ARGS_GIT_TAG)
-    set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
-  endif()
-
-  if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
-    message(STATUS "CPM: not adding ${CPM_ARGS_NAME}@${CPM_ARGS_GIT_TAG}: already addded package ${CPM_ARGS_NAME}")
-    return()
-  endif()
-
-  LIST(APPEND CPM_PACKAGES ${CPM_ARGS_NAME})
-  set(CPM_PACKAGES ${CPM_PACKAGES} CACHE INTERNAL "")
-
-  if (NOT ${CPM_REMOTE_PACKAGES_ONLY})
-    find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} QUIET)
-    set(CPM_PACKAGE_FOUND ${CPM_ARGS_NAME}_FOUND)
-  
-    if(${CPM_PACKAGE_FOUND})
-      message(STATUS "CPM: using local package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION}")
-      set_target_properties(${CPM_ARGS_NAME} 
-        PROPERTIES
-          IMPORTED_GLOBAL True
-      )
-      return()
-    endif()
-  endif()
-
-  if (NOT ${CPM_LOCAL_PACKAGES_ONLY})
-
-    message(STATUS "CPM: fetching package ${CPM_ARGS_NAME}@${CPM_ARGS_GIT_TAG}")
-
-    set(CPM_PACKAGE_CONTENT ${CPM_ARGS_NAME}_CONTENT)
-
-    FetchContent_Declare(
-      ${CPM_PACKAGE_CONTENT}
-      GIT_TAG ${CPM_ARGS_GIT_TAG}
-      ${CPM_ARGS_UNPARSED_ARGUMENTS}
-    )
-    
-    FetchContent_MakeAvailable(${CPM_PACKAGE_CONTENT})
-  else()
-    MESSAGE(ERROR "CPM could not find the local package ${CPM_ARGS_NAME}@${CPM_ARGS_VERSION}")
-  endif()
-
-endfunction()
+include(${CPM_DOWNLOAD_LOCATION})
