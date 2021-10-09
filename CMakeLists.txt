@@ -18,7 +18,14 @@ endif()
 # ---- Dependencies ----
 
 include(cmake/CPM.cmake)
-CPMAddPackage("gh:TheLartians/LHC@0.4")
+
+CPMAddPackage(
+  NAME LHC
+  GITHUB_REPOSITORY TheLartians/LHC
+  VERSION 0.4
+)
+
+# CPMAddPackage("gh:TheLartians/LHC@0.4")
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
 
 # ---- Header target ----
