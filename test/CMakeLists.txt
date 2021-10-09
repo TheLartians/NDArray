@@ -13,7 +13,7 @@ include(../cmake/CPM.cmake)
 include(../cmake/tools.cmake)
 
 cpmaddpackage("gh:catchorg/Catch2@2.13.7")
-cpmaddpackage("gh:TheLartians/Format.cmake@1.7.0")
+cpmaddpackage("gh:TheLartians/Format.cmake@1.7.3")
 
 if(TEST_INSTALLED_VERSION)
   find_package(LarsNDArray REQUIRED)
