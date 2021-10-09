@@ -10,6 +10,7 @@ option(TEST_INSTALLED_VERSION "Test the version found by find_package" OFF)
 # ---- Dependencies ----
 
 include(../cmake/CPM.cmake)
+include(../cmake/tools.cmake)
 
 CPMAddPackage("gh:catchorg/Catch2@2.13.7")
 CPMAddPackage("gh:TheLartians/Format.cmake@1.7.0")
@@ -30,7 +31,7 @@ set_target_properties(LarsNDArrayTests PROPERTIES CXX_STANDARD 17)
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra -Werror -Werror=deprecated)
+    target_compile_options(LarsNDArray INTERFACE -Wall -Wpedantic -Wextra -Werror)
   elseif(MSVC)
     target_compile_options(LarsNDArray INTERFACE /W4 /WX)
     target_compile_definitions(LarsNDArrayTests PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)

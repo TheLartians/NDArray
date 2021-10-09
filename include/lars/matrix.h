@@ -184,7 +184,7 @@ namespace lars {
   template <class T,typename Shape,typename Stride,typename Offset,typename Data,typename MatrixCreator> class MatrixBase:public NDArrayBase<T, Shape, Stride, Offset, Data, MatrixCreator>{
     
   public:
-    
+
     using Base = NDArrayBase<T, Shape, Stride, Offset, Data, MatrixCreator>;
 
     using Base::Base;
@@ -198,6 +198,11 @@ namespace lars {
     
     using SingularMatrixException = lars::SingularMatrixException;
     
+    MatrixBase(const MatrixBase &) = default;
+    MatrixBase(MatrixBase &&) = default;
+    MatrixBase &operator=(const MatrixBase &) = default;
+    MatrixBase &operator=(MatrixBase &&) = default;
+
     static Copy create_identity(Shape s = Shape()){
       Copy m(s);
       m.for_all_indices([&](typename Copy::Index idx){
