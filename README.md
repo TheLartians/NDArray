@@ -1,4 +1,4 @@
-Note: this is a legacy project and currently not in active maintenance. 
+Note: this is a legacy project and not actively maintained. 
 
 # Lars::NDArray
 
