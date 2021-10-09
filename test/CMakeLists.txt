@@ -45,6 +45,6 @@ add_test(LarsNDArrayTests LarsNDArrayTests)
 # ---- code coverage ----
 
 if(ENABLE_TEST_COVERAGE)
-  target_compile_options(LarsNDArray PUBLIC -O0 -g -fprofile-arcs -ftest-coverage)
-  target_link_options(LarsNDArray PUBLIC -fprofile-arcs -ftest-coverage)
+  target_compile_options(LarsNDArray INTERFACE -O0 -g -fprofile-arcs -ftest-coverage)
+  target_link_options(LarsNDArray INTERFACE -fprofile-arcs -ftest-coverage)
 endif()
