@@ -34,9 +34,9 @@ template <class M,class V> void measure(std::string type){
     int i = idx.template get<0>(); vec(idx) = i + 1;
   });
   
-  timeit<10000>(type + " multiplication " , [&](){ return multiplication(mat,vec); }  );
-  timeit<10000>(type + " determinant " , [&](){ return determinant(mat); }  );
-  timeit<10000>(type + " inversion " , [&](){ return inversion(mat); }  );
+  std::cout << (type + " multiplication " ) << time_it([&](){ return multiplication(mat,vec); }, 1000) <<std::endl;
+  std::cout << (type + " determinant " ) << time_it([&](){ return determinant(mat); }, 1000) <<std::endl;
+  std::cout << (type + " inversion " ) << time_it([&](){ return inversion(mat); }, 1000) <<std::endl;
 }
 
 int main(){
