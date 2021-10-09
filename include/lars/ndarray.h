@@ -1345,6 +1345,9 @@ public:
     Base::operator=(other);
   }
 
+  StackNDArray &operator=(const StackNDArray &other) = default;
+  StackNDArray &operator=(StackNDArray &&other) = default;
+
   template <typename S> void resize(S shape) { Base::SShape::set(shape); }
   template <typename... Args> void resize(size_t first, Args... rest) {
     resize(Shape(first, rest...));
