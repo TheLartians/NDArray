@@ -36,7 +36,8 @@ set_target_properties(LarsNDArrayHeaders PROPERTIES LINKER_LANGUAGE CXX)
 # ---- Create library ----
 
 add_library(LarsNDArray INTERFACE)
-set_target_properties(LarsNDArray PROPERTIES CXX_STANDARD 17)
+set_target_properties(LarsNDArray PROPERTIES INTERFACE_COMPILE_FEATURES
+                                             cxx_std_17)
 target_link_libraries(LarsNDArray INTERFACE LHC)
 
 target_include_directories(
