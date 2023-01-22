@@ -330,8 +330,14 @@ public:
   using disable_if_one_dimensional = typename std::enable_if<
       (Shape::size() > 1) && DummyTemplate<Dummy>::value, Ret>::type;
 
-  struct iterator : public std::iterator<std::input_iterator_tag,
-                                         std::remove_reference<ElementType>> {
+  struct iterator {
+
+    using iterator_category = std::input_iterator_tag;
+    using value_type = std::remove_reference<ElementType>;
+    using difference_type = int;
+    using pointer = std::remove_reference<ElementType> *;
+    using reference = std::remove_reference<ElementType> &;
+
     NDArrayBase &parent;
     size_t current_index;
     iterator(NDArrayBase &_parent, size_t index)
